@@ -5,7 +5,7 @@ export const AppContext = React.createContext();
 
 export const AppContextProvider = ({ children }) => {
     const navigate = useNavigate();
-    const [user,setUser] = React.useState(true);
+    const [user,setUser] = React.useState(null);
     const [isSeller,setIsSeller] = React.useState(null);
     const [showUserLogin,setShowUserLogin] = React.useState(false);
     
