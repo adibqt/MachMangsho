@@ -56,12 +56,23 @@ function Navbar() {
                <NavLink to='/' onClick={() => setOpen(false)} className="block">Contact</NavLink>
                 
                 {!user ? (
-                    <button onClick ={()=>{
-                        setOpen(false)
-                        setShowUserLogin(true);
-                    }} className="cursor-pointer px-6 py-2 mt-2 bg-indigo-500 hover:bg-indigo-600 transition text-white rounded-full text-sm">Login</button>
+                    <button
+                        onClick={() => {
+                            setOpen(false)
+                            setShowUserLogin(true);
+                        }}
+                        className="cursor-pointer px-6 py-2 mt-2 bg-[#c9595a] hover:bg-[#b14c4d] transition text-white rounded-full text-sm"
+                    >
+                        Login
+                    </button>
                 ) : (
-                <button onCick ={logout} className="cursor-pointer px-6 py-2 mt-2 bg-indigo-500 hover:bg-indigo-600 transition text-white rounded-full text-sm">Logout</button>)}
+                    <button
+                        onClick={logout}
+                        className="cursor-pointer px-6 py-2 mt-2 bg-[#c9595a] hover:bg-[#b14c4d] transition text-white rounded-full text-sm"
+                    >
+                        Logout
+                    </button>
+                )}
                 
             </div>
     )}

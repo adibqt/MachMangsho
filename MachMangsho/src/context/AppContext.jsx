@@ -5,11 +5,11 @@ export const AppContext = React.createContext();
 
 export const AppContextProvider = ({ children }) => {
     const navigate = useNavigate();
-    const [user,setUser] = React.useState(null);
+    const [user,setUser] = React.useState(true);
     const [isSeller,setIsSeller] = React.useState(null);
-
+    const [showUserLogin,setShowUserLogin] = React.useState(false);
     
-    const value ={navigate, user, setUser, isSeller, setIsSeller};
+    const value ={navigate, user, setUser, isSeller, setIsSeller, showUserLogin, setShowUserLogin};
 return <AppContext.Provider value={value}>
     {children}
   </AppContext.Provider>;   
