@@ -9,8 +9,8 @@ const MainBanner = () => {
       <img src={assets.main_banner_bg_sm} alt="Main Banner" className='w-full md:hidden' />
       
       {/* Add absolute positioning to place content over the images */}
-      <div className='absolute inset-0 flex flex-col justify-center items-start pl-8 md:pl-16 space-y-4'>
-        <h1 className='text-2xl md:text-4xl font-bold text-black max-w-md'>
+      <div className='absolute inset-0 flex flex-col justify-center items-start pl-8 md:pl-16 space-y-10'>
+        <h1 className='text-3xl md:text-5xl font-bold text-black max-w-md'>
           Freshness You Can Trust, Savings You will Love!
         </h1>
         
@@ -21,7 +21,7 @@ const MainBanner = () => {
           </Link>
           
           <Link to="/products" className='group hidden md:flex items-center gap-2 px-9 py-3 cursor-pointer text-black transition' style={{ ':hover': { color: '#c9595a' } }} onMouseEnter={(e) => e.target.style.color = '#c9595a'} onMouseLeave={(e) => e.target.style.color = 'black'}>
-            Explore deals
+            Explore Deals
             <img className='transition group-hover:translate-x-1' src={assets.black_arrow_icon} alt="Arrow" />
           </Link>
         </div>
