@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { use } from 'react';
 import { assets } from '../assets/assets'; // Add this import
 
 const ProductCard = ({product}) => {
     const [count, setCount] = React.useState(0);
+    const {currency} = useAppContext();
 
     
 
@@ -20,11 +21,11 @@ const ProductCard = ({product}) => {
                             <img key = {i} className = "md: w-3.5 w3"src={i < 4 ? assets.star_icon : assets.star_dull_icon} alt=""/>
                         
                     ))} 
-                    <p>({product.rating})</p>
+                    <p>(4)</p>
                 </div>
                 <div className="flex items-end justify-between mt-3">
                     <p className="md:text-xl text-base font-medium" style={{color: '#c9595a'}}>
-                        ${product.offerPrice} <span className="text-gray-500/60 md:text-sm text-xs line-through">${product.price}</span>
+                       {currency} ${product.offerPrice}{""} <span className="text-gray-500/60 md:text-sm text-xs line-through">{currency} ${product.price}</span>
                     </p>
                     <div style={{color: '#c9595a'}}>
                         {count === 0 ? (
