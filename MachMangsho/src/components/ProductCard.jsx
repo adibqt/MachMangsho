@@ -1,9 +1,12 @@
 import React, { use } from 'react';
 import { assets } from '../assets/assets'; // Add this import
+import { createContext,useContext,useEffect,useState } from 'react';
+import { useAppContext } from '../context/AppContext'; // Import AppContext
+import toast from 'react-hot-toast';
 
 const ProductCard = ({product}) => {
     const [count, setCount] = React.useState(0);
-    const {currency} = useAppContext();
+    const {currency,addToCart, removeFromCart, cartItems, navigate} = useAppContext();
 
     
 
@@ -28,7 +31,7 @@ const ProductCard = ({product}) => {
                        {currency} ${product.offerPrice}{""} <span className="text-gray-500/60 md:text-sm text-xs line-through">{currency} ${product.price}</span>
                     </p>
                     <div style={{color: '#c9595a'}}>
-                        {count === 0 ? (
+                        {!cartItems[product._id] ? (
                             <button 
                                 className="flex items-center justify-center gap-1 border md:w-[80px] w-[64px] h-[34px] rounded font-medium" 
                                 style={{
@@ -38,9 +41,7 @@ const ProductCard = ({product}) => {
                                 }}
                                 onClick={() => setCount(1)}
                             >
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M.583.583h2.333l1.564 7.81a1.17 1.17 0 0 0 1.166.94h5.67a1.17 1.17 0 0 0 1.167-.94l.933-4.893H3.5m2.333 8.75a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0m6.417 0a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0" stroke="#c9595a" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
+                                <img src ={assets.cart_icon} alt = "cart_icon"/>
                                 Add
                             </button>
                         ) : (
@@ -55,7 +56,7 @@ const ProductCard = ({product}) => {
                                 >
                                     -
                                 </button>
-                                <span className="w-5 text-center" style={{color: '#c9595a'}}>{count}</span>
+                                <span className="w-5 text-center" style={{color: '#c9595a'}}>{cartItems[product._id]}</span>
                                 <button 
                                     onClick={() => setCount((prev) => prev + 1)} 
                                     className="cursor-pointer text-md px-2 h-full"
