@@ -21,7 +21,7 @@ export const AppContextProvider = ({ children }) => {
     }
 
     // ADD Products to cart
-    const addToCart = () => {
+    const addToCart = (itemID) => {
         let cartData = structuredClone(cartItems);
         if(cartData[itemID]){
             cartData[itemID] += 1;
@@ -50,6 +50,7 @@ export const AppContextProvider = ({ children }) => {
                 delete cartData[itemID];
             }
     }
+        setCartItems(cartData);
         toast.success("Item removed from cart");
     }
     useEffect(() => {

@@ -45,7 +45,7 @@ const ProductCard = ({product}) => {
                         </span>
                     </p>
                     
-                    <div style={{color: '#c9595a'}}>
+                    <div onClick={(e) => {e.stopPropagation();}} style={{color: '#c9595a'}}>
                         {!cartItems[product._id] ? (
                             <button 
                                 className="flex items-center justify-center gap-1 border md:w-[80px] w-[64px] h-[34px] rounded font-medium" 
