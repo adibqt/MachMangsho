@@ -5,6 +5,7 @@ import Home from './pages/Home' // <-- Import Home component
 
 import { useAppContext } from './context/AppContext' // <-- Import AppContext
 import { Toaster } from 'react-hot-toast' // <-- Import Toaster for notifications
+import Footer from './components/Footer'
 const App = () => {
 
   const isSellerPath = window.location.pathname.includes("seller");
@@ -21,6 +22,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
         </Routes>
       </div>
+      <Footer />
     </div>
   )
 }
