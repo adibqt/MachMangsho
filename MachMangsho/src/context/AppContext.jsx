@@ -1,4 +1,4 @@
-import React, { use, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { dummyProducts } from "../assets/assets";
 import toast from "react-hot-toast";
@@ -9,10 +9,10 @@ export const AppContextProvider = ({ children }) => {
 
     const currency = "৳"; // You can change this to any currency symbol you want
     const navigate = useNavigate();
-    const [user,setUser] = React.useState(null);
-    const [isSeller,setIsSeller] = React.useState(null);
-    const [showUserLogin,setShowUserLogin] = React.useState(false);
-    const [products,setProducts] = React.useState([]);
+    const [user,setUser] = useState(null);
+    const [isSeller,setIsSeller] = useState(false);
+    const [showUserLogin,setShowUserLogin] = useState(false);
+    const [products,setProducts] = useState([]);
 
     const [cartItems,setCartItems] = React.useState({});
     
@@ -65,5 +65,6 @@ return <AppContext.Provider value={value}>
 }
 
 export const useAppContext = () => {
-    return use(AppContext);
+    return useContext(AppContext);  // Changed from use(AppContext) to useContext(AppContext)
 }
+

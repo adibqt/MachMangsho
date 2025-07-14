@@ -2,17 +2,21 @@ import React from 'react'
 import Navbar from './components/Navbar'
 import { Routes, Route } from 'react-router-dom' // <-- Add Routes here
 import Home from './pages/Home' // <-- Import Home component
+import Login from './components/Login'  // Add this import
 
 import { useAppContext } from './context/AppContext' // <-- Import AppContext
 import { Toaster } from 'react-hot-toast' // <-- Import Toaster for notifications
 import Footer from './components/Footer'
 const App = () => {
 
+
   const isSellerPath = window.location.pathname.includes("seller");
+  const { showUserLogin } = useAppContext(); // <-- Use context to get showUserLogin state
   return (
   
     <div>
       {isSellerPath ? null : <Navbar />}
+      {showUserLogin ? <Login/> : null} {/* <-- Conditionally render Login component */}
 
       <Toaster/>
       <div className={`${
