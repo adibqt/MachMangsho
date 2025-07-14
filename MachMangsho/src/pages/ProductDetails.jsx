@@ -42,7 +42,7 @@ const ProductDetails = () => {
                 <Link to="/">Home</Link> /
                 <Link to="/products"> Products</Link> / {/* Fixed link */}
                 <Link to={`/products/${product.category.toLowerCase()}`}> {product.category}</Link> /
-                <span className="text-indigo-500"> {product.name}</span>
+                <span className="text-[#c9595a]"> {product.name}</span>
             </p>
 
             <div className="flex flex-col md:flex-row gap-16 mt-4">
@@ -65,9 +65,16 @@ const ProductDetails = () => {
 
                     <div className="flex items-center gap-0.5 mt-1">
                         {Array(5).fill('').map((_, i) => (
-                           
-                                <img src = {i<4 ? assets.star_icon : assets.star_dull_icon} alt = "Star Icon" className="mid: w-4 w-3.5"/>
-                            
+                            <svg 
+                                key={i} 
+                                className="w-4 h-4" 
+                                viewBox="0 0 24 24" 
+                                fill={i < 4 ? '#c9595a' : 'none'} 
+                                stroke={i < 4 ? '#c9595a' : '#d1d5db'}
+                                strokeWidth="1"
+                            >
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                            </svg>
                         ))}
                         <p className="text-base ml-2">({4})</p>
                     </div>
@@ -103,10 +110,20 @@ const ProductDetails = () => {
                         <h2 className="text-2xl font-medium">Related Products</h2>
                         <button 
                             onClick={() => navigate('/products')} 
-                            className="px-6 py-2 text-white font-medium rounded transition hover:opacity-90"
+                            className="group flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg shadow-md transition-all duration-300 hover:shadow-lg hover:scale-105 cursor-pointer"
                             style={{ backgroundColor: '#c9595a' }}
+                            onMouseEnter={(e) => e.target.style.backgroundColor = '#b14a4b'}
+                            onMouseLeave={(e) => e.target.style.backgroundColor = '#c9595a'}
                         >
-                            See More
+                            <span>See More</span>
+                            <svg 
+                                className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" 
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
                         </button>
                     </div>
                     
