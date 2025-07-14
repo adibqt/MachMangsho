@@ -1,9 +1,11 @@
 import React from 'react'
 import { useAppContext } from '../context/AppContext'
 import { useParams } from 'react-router-dom'
+import { categories } from '../assets/assets'
+import ProductCard from '../components/ProductCard'
 
 const ProductCategory = () => {
-    const { products, categories } = useAppContext();
+    const { products} = useAppContext();
     const { category } = useParams();
 
     const searchCategory = categories.find(
@@ -22,6 +24,15 @@ const ProductCategory = () => {
 
             <div className = "w-16 h-0.5 bg-primary rounded-full"></div>
         </div>
+      )}
+      {filteredProducts.length > 0 ? (
+        <div className='grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6 mt-6'>
+          {filteredProducts.map((product) => (
+           <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      ) : (
+        <p className='mt-4'>No products found in this category.</p>
       )}
     </div>
   )
