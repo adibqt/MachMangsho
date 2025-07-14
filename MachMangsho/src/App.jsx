@@ -9,6 +9,7 @@ import { useAppContext } from './context/AppContext' // <-- Import AppContext
 import { Toaster } from 'react-hot-toast' // <-- Import Toaster for notifications
 import Footer from './components/Footer'
 import AllProducts from './pages/AllProducts'
+import ProductDetails from './pages/ProductDetails' // <-- Import ProductDetails component
 const App = () => {
 
 
@@ -28,6 +29,8 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<AllProducts />} />
           <Route path="/products/:category" element={<ProductCategory />} />
+          <Route path="/products/:category/:id" element={<ProductDetails />} />
+          <Route path="/product/:category/:id" element={<ProductDetails />} />
         </Routes>
       </div>
       <Footer />
