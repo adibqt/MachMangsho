@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { dummyProducts } from "../assets/assets";
 import toast from "react-hot-toast";
+//import Home from './pages/Home'
 
 export const AppContext = React.createContext();
 
@@ -13,7 +14,7 @@ export const AppContextProvider = ({ children }) => {
     const [isSeller,setIsSeller] = useState(false);
     const [showUserLogin,setShowUserLogin] = useState(false);
     const [products,setProducts] = useState([]);
-
+    const [searchQuery, setSearchQuery] = useState(""); // Add this line
     const [cartItems,setCartItems] = React.useState({});
     
     const fetchProducts = async () => {
@@ -57,7 +58,7 @@ export const AppContextProvider = ({ children }) => {
         fetchProducts();
     }, [])
     const value ={navigate, user, setUser, isSeller, setIsSeller, showUserLogin, setShowUserLogin,products,currency,addToCart,updateCartItem, 
-        removeFromCart, cartItems, fetchProducts };
+        removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery }; // Add searchQuery and setSearchQuery
 return <AppContext.Provider value={value}>
     {children}
   </AppContext.Provider>;   
