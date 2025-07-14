@@ -3,7 +3,7 @@ import Navbar from './components/Navbar'
 import { Routes, Route } from 'react-router-dom' // <-- Add Routes here
 import Home from './pages/Home' // <-- Import Home component
 import Login from './components/Login'  // Add this import
-
+import ProductCategory from './pages/ProductCategory' // <-- Import ProductCategory component
 
 import { useAppContext } from './context/AppContext' // <-- Import AppContext
 import { Toaster } from 'react-hot-toast' // <-- Import Toaster for notifications
@@ -27,7 +27,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<AllProducts />} />
-          
+          <Route path="/products/:category" element={<ProductCategory />} />
         </Routes>
       </div>
       <Footer />
