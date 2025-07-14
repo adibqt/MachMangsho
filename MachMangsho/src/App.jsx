@@ -4,9 +4,11 @@ import { Routes, Route } from 'react-router-dom' // <-- Add Routes here
 import Home from './pages/Home' // <-- Import Home component
 import Login from './components/Login'  // Add this import
 
+
 import { useAppContext } from './context/AppContext' // <-- Import AppContext
 import { Toaster } from 'react-hot-toast' // <-- Import Toaster for notifications
 import Footer from './components/Footer'
+import AllProducts from './pages/AllProducts'
 const App = () => {
 
 
@@ -24,6 +26,8 @@ const App = () => {
       }`}>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/products" element={<AllProducts />} />
+          
         </Routes>
       </div>
       <Footer />
