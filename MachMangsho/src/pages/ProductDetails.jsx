@@ -95,6 +95,28 @@ const ProductDetails = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Related Products Section */}
+            {relatedProducts.length > 0 && (
+                <div className="mt-16">
+                    <div className="flex items-center justify-between mb-8">
+                        <h2 className="text-2xl font-medium">Related Products</h2>
+                        <button 
+                            onClick={() => navigate('/products')} 
+                            className="px-6 py-2 text-white font-medium rounded transition hover:opacity-90"
+                            style={{ backgroundColor: '#c9595a' }}
+                        >
+                            See More
+                        </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6">
+                        {relatedProducts.map((relatedProduct) => (
+                            <ProductCard key={relatedProduct._id} product={relatedProduct} />
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
