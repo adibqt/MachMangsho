@@ -10,7 +10,10 @@ export const AppContextProvider = ({ children }) => {
     const currency = "৳"; // You can change this to any currency symbol you want
     const navigate = useNavigate();
     const [user,setUser] = useState(null);
-    const [isSeller,setIsSeller] = useState(false);
+    const [isSeller, setIsSeller] = useState(() => {
+    // Check localStorage for seller state on load
+    return localStorage.getItem("isSeller") === "true";
+  });
     const [showUserLogin,setShowUserLogin] = useState(false);
     const [products,setProducts] = useState([]);
 
@@ -83,9 +86,14 @@ export const AppContextProvider = ({ children }) => {
     }
 
      
-    const value ={navigate, user, setUser, isSeller, setIsSeller, showUserLogin, setShowUserLogin,products,currency,addToCart,updateCartItem, 
-        removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery, getCartAmount, getCartCount};
-return <AppContext.Provider value={value}>
+    // Persist isSeller to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("isSeller", isSeller);
+  }, [isSeller]);
+
+  const value = {navigate, user, setUser, isSeller, setIsSeller, showUserLogin, setShowUserLogin,products,currency,addToCart,updateCartItem, 
+    removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery, getCartAmount, getCartCount};
+  return <AppContext.Provider value={value}>
     {children}
   </AppContext.Provider>;   
 

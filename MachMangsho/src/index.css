@@ -11,3 +11,8 @@
     --color-primary-dull: #FF8788;  /* Lighter shade for hover effects */
 }
 
+:no-scrollbar::-webkit-scrollbar{
+    display: none;
+
+}
+
