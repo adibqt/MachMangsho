@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { dummyProducts } from "../assets/assets";
 import toast from "react-hot-toast";
-//import Home from './pages/Home'
 
 export const AppContext = React.createContext();
 
@@ -14,8 +13,9 @@ export const AppContextProvider = ({ children }) => {
     const [isSeller,setIsSeller] = useState(false);
     const [showUserLogin,setShowUserLogin] = useState(false);
     const [products,setProducts] = useState([]);
-    const [searchQuery, setSearchQuery] = useState(""); // Add this line
+
     const [cartItems,setCartItems] = React.useState({});
+    const [searchQuery,setSearchQuery] = React.useState({});
     
     const fetchProducts = async () => {
         setProducts(dummyProducts)
@@ -57,8 +57,34 @@ export const AppContextProvider = ({ children }) => {
     useEffect(() => {
         fetchProducts();
     }, [])
+
+    // Get Cart Items Count
+    const getCartCount = ()=> {
+        let totalCOunt =0;
+        for(const item in cartItems){
+            totalCOunt += cartItems[item];
+
+        }
+        return totalCOunt;
+
+    }
+
+    // Get Cart Total Price
+    const getCartAmount = () => {
+       let totalAmount =0;
+       for(const items in cartItems){
+        let itemInfo = products.find((product) => product._id === items);
+        if(cartItems[items] > 0){
+            totalAmount += itemInfo.offerPrice * cartItems[items];
+        }
+       }
+       return Math.floor(totalAmount * 100) / 100; // Round to 2 decimal places
+
+    }
+
+     
     const value ={navigate, user, setUser, isSeller, setIsSeller, showUserLogin, setShowUserLogin,products,currency,addToCart,updateCartItem, 
-        removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery }; // Add searchQuery and setSearchQuery
+        removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery, getCartAmount, getCartCount};
 return <AppContext.Provider value={value}>
     {children}
   </AppContext.Provider>;   

@@ -105,9 +105,9 @@ const ProductDetails = () => {
 
             {/* Related Products Section */}
             {relatedProducts.length > 0 && (
-                <div className="mt-16">
+                <div className="mt-20">
                     <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-2xl font-medium">Related Products</h2>
+                        <h2 className="text-3xl font-medium">Related Products</h2>
                         <button 
                             onClick={() => navigate('/products')} 
                             className="group flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg shadow-md transition-all duration-300 hover:shadow-lg hover:scale-105 cursor-pointer"
