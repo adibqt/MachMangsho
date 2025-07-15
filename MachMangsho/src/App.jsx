@@ -10,6 +10,7 @@ import { Toaster } from 'react-hot-toast' // <-- Import Toaster for notification
 import Footer from './components/Footer'
 import AllProducts from './pages/AllProducts'
 import ProductDetails from './pages/ProductDetails' // <-- Import ProductDetails component
+import Cart from './pages/Cart'
 const App = () => {
 
 
@@ -31,6 +32,7 @@ const App = () => {
           <Route path="/products/:category" element={<ProductCategory />} />
           <Route path="/products/:category/:id" element={<ProductDetails />} />
           <Route path="/product/:category/:id" element={<ProductDetails />} />
+          <Route path="/cart" element={<Cart />} />
         </Routes>
       </div>
       <Footer />
