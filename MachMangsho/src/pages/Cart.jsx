@@ -6,9 +6,10 @@ import { dummyAddress, assets } from '../assets/assets';
 const Cart = () => {
     const {products, curency, cartItems, removeFromCart, getCartCount, updateCartItem, navigate, getCartAmount } = useAppContext();
     const [cartArray, setCartArray] =useState([]);
-    const [addresses,setAddresses] = useState(dummyAddress);
+    const defaultAddress = { street: 'street 123', city: 'Dhaka', state: '', country: 'Bangladesh' };
+    const [addresses, setAddresses] = useState([defaultAddress]);
     const [showAddress, setShowAddress] = useState(false);
-    const[selectedAddress, setSelectedAddress] = useState(dummyAddress[0]);
+    const [selectedAddress, setSelectedAddress] = useState(defaultAddress);
     const[paymentOption, setPaymentOption] = useState("COD");
 
     const getCart = ()=> {
@@ -144,13 +145,13 @@ const Cart = () => {
                         <span>Price</span><span>{curency}{getCartAmount()}</span>
                     </p>
                     <p className="flex justify-between">
-                        <span>Shipping Fee</span><span className="text-green-600">Free</span>
+                        <span style={{ color: '#c9595a' }}>Delivery Charge</span><span style={{ color: '#c9595a' }}>{curency}40</span>
                     </p>
                     <p className="flex justify-between">
                         <span>Tax (2%)</span><span>{curency}{getCartAmount() * 2 /100}</span>
                     </p>
                     <p className="flex justify-between text-lg font-medium mt-3">
-                        <span>Total Amount:</span><span>{curency}{getCartAmount() + getCartAmount() * 2 /100}</span>
+                        <span style={{ color: '#c9595a' }}>Total Amount:</span><span style={{ color: '#c9595a' }}>{curency}{getCartAmount() + getCartAmount() * 2 /100 + 40}</span>
                     </p>
                 </div>
 

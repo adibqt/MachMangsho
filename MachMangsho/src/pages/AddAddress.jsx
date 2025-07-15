@@ -46,8 +46,8 @@ const AddAddress = () => {
 
   return (
     <div className='mt-16 pb-16'>
-        <p className='text-2xl md:text-3xl text-gray-500'>Add Ship<span className="relative inline-block">ping
-    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#c9595a] rounded-full"></span>
+        <p className='text-2xl md:text-3xl text-gray-500'>Add Ship<span className="relative inline-block pb-1">ping
+    <span className="absolute left-0 w-full h-0.5 bg-[#c9595a] rounded-full" style={{bottom: '-6px'}}></span>
 </span> <span className='font-semibold' style={{color:'#c9595a'}}>Address</span></p>
         <div className='flex flex-col-reverse md:flex-row justify-between mt-10'>
             <div className='flex-1 max-w-md'>
