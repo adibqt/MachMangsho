@@ -106,32 +106,39 @@ const ProductDetails = () => {
             {/* Related Products Section */}
             {relatedProducts.length > 0 && (
                 <div className="mt-20">
-                    <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-3xl font-medium">Related Products</h2>
-                        <button 
-                            onClick={() => navigate('/products')} 
-                            className="group flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg shadow-md transition-all duration-300 hover:shadow-lg hover:scale-105 cursor-pointer"
-                            style={{ backgroundColor: '#c9595a' }}
-                            onMouseEnter={(e) => e.target.style.backgroundColor = '#b14a4b'}
-                            onMouseLeave={(e) => e.target.style.backgroundColor = '#c9595a'}
-                        >
-                            <span>See More</span>
-                            <svg 
-                                className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" 
-                                fill="none" 
-                                stroke="currentColor" 
-                                viewBox="0 0 24 24"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6">
-                        {relatedProducts.map((relatedProduct) => (
-                            <ProductCard key={relatedProduct._id} product={relatedProduct} />
-                        ))}
-                    </div>
+                    <div className="flex flex-col items-center justify-center mb-8">
+    <h2 className="text-3xl font-medium text-center">
+        Related <span className="relative inline-block">Products
+            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#c9595a] rounded-full"></span>
+        </span>
+    </h2>
+</div>
+
+<div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6">
+    {relatedProducts.map((relatedProduct) => (
+        <ProductCard key={relatedProduct._id} product={relatedProduct} />
+    ))}
+</div>
+
+<div className="flex justify-center mt-8">
+    <button 
+        onClick={() => navigate('/products')} 
+        className="group flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg shadow-md transition-all duration-300 hover:shadow-lg hover:scale-105 cursor-pointer"
+        style={{ backgroundColor: '#c9595a' }}
+        onMouseEnter={(e) => e.target.style.backgroundColor = '#b14a4b'}
+        onMouseLeave={(e) => e.target.style.backgroundColor = '#c9595a'}
+    >
+        <span>See More</span>
+        <svg 
+            className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+        >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+    </button>
+</div>
                 </div>
             )}
         </div>
