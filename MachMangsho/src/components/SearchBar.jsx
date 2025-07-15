@@ -5,9 +5,30 @@ const SearchBar = ({
   onSearch, 
   placeholder = "Search for fresh groceries, organic produce, dairy & more...", 
   suggestions = [
-    "Fresh Apples", "Organic Milk", "Whole Wheat Bread", "Bananas", "Chicken Breast",
-    "Greek Yogurt", "Avocados", "Spinach", "Basmati Rice", "Olive Oil",
-    "Eggs", "Tomatoes", "Onions", "Potatoes", "Cheese", "Salmon", "Broccoli"
+    "Apples", "Avocados", "Asparagus", "Artichokes", "Almonds",
+    "Bananas", "Bread", "Broccoli", "Beef", "Butter", "Berries",
+    "Chicken", "Cheese", "Carrots", "Cucumbers", "Cabbage", "Corn",
+    "Dairy", "Dates", "Duck", "Dill", "Donuts",
+    "Eggs", "Eggplant", "Elderberries",
+    "Fish", "Flour", "Fruits", "Frozen Foods",
+    "Grapes", "Greek Yogurt", "Garlic", "Ginger", "Green Beans",
+    "Herbs", "Honey", "Ham", "Hot Sauce",
+    "Ice Cream", "Italian Pasta",
+    "Juice", "Jam", "Jalapeños",
+    "Kale", "Kiwi", "Kidney Beans",
+    "Lettuce", "Lemons", "Limes", "Lamb",
+    "Milk", "Meat", "Mushrooms", "Mango", "Mayonnaise",
+    "Nuts", "Noodles", "Nectarines",
+    "Onions", "Oranges", "Olive Oil", "Oregano",
+    "Potatoes", "Pasta", "Pears", "Peppers", "Pineapple",
+    "Quinoa", "Queso",
+    "Rice", "Radishes", "Raspberries",
+    "Salmon", "Spinach", "Strawberries", "Sugar", "Salt",
+    "Tomatoes", "Turkey", "Tofu", "Thyme",
+    "Vegetables", "Vanilla", "Vinegar",
+    "Watermelon", "Whole Wheat", "Walnuts",
+    "Yogurt", "Yams",
+    "Zucchini", "Zest"
   ],
   className = '',
   showSuggestions = true,
@@ -46,14 +67,27 @@ const SearchBar = ({
     }, debounceDelay)
   }, [onSearch, debounceDelay])
 
-  // Optimized suggestion filtering
+  // Optimized suggestion filtering - matches items that START with the query
   const updateSuggestions = useCallback((searchQuery) => {
     if (searchQuery.trim() && showSuggestions && memoizedSuggestions.length > 0) {
-      const filtered = memoizedSuggestions.filter(suggestion =>
-        suggestion.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-      setFilteredSuggestions(filtered.slice(0, maxSuggestions))
-      setShowSuggestionsList(filtered.length > 0)
+      const query = searchQuery.trim().toLowerCase()
+      
+      // Primary filter: items that start with the query
+      const startsWith = memoizedSuggestions.filter(suggestion =>
+        suggestion.toLowerCase().startsWith(query)
+      ).map(suggestion => ({ text: suggestion, priority: 'high' }))
+      
+      // Secondary filter: items that contain the query (but don't start with it)
+      const contains = memoizedSuggestions.filter(suggestion =>
+        !suggestion.toLowerCase().startsWith(query) && 
+        suggestion.toLowerCase().includes(query)
+      ).map(suggestion => ({ text: suggestion, priority: 'low' }))
+      
+      // Combine results: prioritize items that start with query
+      const combined = [...startsWith, ...contains]
+      
+      setFilteredSuggestions(combined.slice(0, maxSuggestions))
+      setShowSuggestionsList(combined.length > 0)
     } else {
       setShowSuggestionsList(false)
       setFilteredSuggestions([])
@@ -89,7 +123,7 @@ const SearchBar = ({
     if (e.key === 'Enter') {
       e.preventDefault()
       if (selectedSuggestionIndex >= 0 && filteredSuggestions[selectedSuggestionIndex]) {
-        handleSuggestionClick(filteredSuggestions[selectedSuggestionIndex])
+        handleSuggestionClick(filteredSuggestions[selectedSuggestionIndex].text)
       } else {
         handleSearch()
       }
@@ -226,18 +260,27 @@ const SearchBar = ({
             {filteredSuggestions.map((suggestion, index) => (
               <div
                 key={index}
-                onClick={() => handleSuggestionClick(suggestion)}
+                onClick={() => handleSuggestionClick(suggestion.text)}
                 className={`px-4 py-3 cursor-pointer border-b border-gray-50 last:border-b-0 rounded-lg transition-colors ${
                   selectedSuggestionIndex === index 
                     ? 'bg-green-100 text-green-800' 
                     : 'hover:bg-green-50'
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                  <span className="text-gray-700 font-medium">{suggestion}</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <span className={`${suggestion.priority === 'high' ? 'font-semibold text-green-700' : 'text-gray-700 font-medium'}`}>
+                      {suggestion.text}
+                    </span>
+                  </div>
+                  {suggestion.priority === 'high' && (
+                    <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
+                      Best Match
+                    </span>
+                  )}
                 </div>
               </div>
             ))}
