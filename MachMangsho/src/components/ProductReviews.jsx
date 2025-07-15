@@ -5,27 +5,43 @@ const ProductReviews = ({ productId }) => {
   const [reviews, setReviews] = useState([
     {
       id: 1,
-      name: "Sarah Johnson",
+      name: "Alex Rahman",
       rating: 5,
-      date: "2025-01-15",
-      comment: "Amazing product! Fresh and delivered on time. Will definitely order again.",
+      date: "2025-01-18",
+      comment: "Exceptional quality and freshness! The vegetables were crisp and the fruits were perfectly ripe. MachMangsho has become my go-to grocery store.",
       verified: true
     },
     {
       id: 2,
-      name: "Mike Chen",
+      name: "Priya Sharma",
       rating: 4,
-      date: "2025-01-12",
-      comment: "Good quality and fast delivery. The packaging was excellent.",
+      date: "2025-01-16",
+      comment: "Great variety of organic products. The delivery was quick and the packaging kept everything fresh. Will definitely recommend to friends.",
       verified: true
     },
     {
       id: 3,
-      name: "Emily Davis",
+      name: "David Kim",
       rating: 5,
-      date: "2025-01-10",
-      comment: "Best online grocery shopping experience! Highly recommended.",
+      date: "2025-01-14",
+      comment: "Love the convenience and quality! The app is user-friendly and the customer service is outstanding. Best grocery shopping experience ever!",
       verified: false
+    },
+    {
+      id: 4,
+      name: "Maria Rodriguez",
+      rating: 4,
+      date: "2025-01-13",
+      comment: "Fresh produce and competitive prices. The dairy products are always fresh and the meat quality is excellent. Highly satisfied with my purchases.",
+      verified: true
+    },
+    {
+      id: 5,
+      name: "James Wilson",
+      rating: 5,
+      date: "2025-01-11",
+      comment: "MachMangsho has revolutionized my grocery shopping! Same-day delivery, premium quality, and excellent customer support. Couldn't ask for more!",
+      verified: true
     }
   ])
 
@@ -37,10 +53,10 @@ const ProductReviews = ({ productId }) => {
 
   const [showReviewForm, setShowReviewForm] = useState(false)
 
-  // Calculate average rating
+ 
   const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
 
-  // Handle form submission
+
   const handleSubmitReview = (e) => {
     e.preventDefault()
     if (newReview.name.trim() && newReview.comment.trim()) {
@@ -56,7 +72,7 @@ const ProductReviews = ({ productId }) => {
     }
   }
 
-  // Render star rating
+
   const renderStars = (rating, interactive = false, onRatingChange = null) => {
     return Array.from({ length: 5 }, (_, index) => (
       <img
