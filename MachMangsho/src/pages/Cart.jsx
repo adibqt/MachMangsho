@@ -37,7 +37,7 @@ const Cart = () => {
 
     
     return products.length > 0 && cartItems  ? (
-        <div className="flex flex-col md:flex-row mt-16">
+        <div className="flex flex-col md:flex-row mt-16 gap-8">
             <div className='flex-1 max-w-4xl'>
                 <h1 className="text-3xl font-medium">
     Shopping <span className="relative inline-block">Cart
@@ -107,7 +107,7 @@ const Cart = () => {
                 
             </div>
 
-            <div className="max-w-[360px] w-full bg-gray-100/40 p-5 max-md:mt-16 border border-gray-300/70">
+            <div className="max-w-[360px] w-full bg-gray-100/40 p-5 max-md:mt-16 border border-gray-300/70 md:ml-auto">
                 <h2 className="text-xl md:text-xl font-medium">Order Summary</h2>
                 <hr className="border-gray-300 my-5" />
 
