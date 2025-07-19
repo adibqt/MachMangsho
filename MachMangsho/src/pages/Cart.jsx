@@ -147,11 +147,8 @@ const Cart = () => {
                     <p className="flex justify-between">
                         <span style={{ color: '#c9595a' }}>Delivery Charge</span><span style={{ color: '#c9595a' }}>{curency}40</span>
                     </p>
-                    <p className="flex justify-between">
-                        <span>Tax (2%)</span><span>{curency}{getCartAmount() * 2 /100}</span>
-                    </p>
                     <p className="flex justify-between text-lg font-medium mt-3">
-                        <span style={{ color: '#c9595a' }}>Total Amount:</span><span style={{ color: '#c9595a' }}>{curency}{getCartAmount() + getCartAmount() * 2 /100 + 40}</span>
+                        <span style={{ color: '#c9595a' }}>Total Amount:</span><span style={{ color: '#c9595a' }}>{curency}{getCartAmount() + 40}</span>
                     </p>
                 </div>
 

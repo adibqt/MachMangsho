@@ -30,13 +30,11 @@ const MyOrders = () => {
                     <span className="text-black font-medium">Payment : {order.paymentType}</span>
                     {(() => {
   const subtotal = order.items.reduce((acc, item) => acc + ((item.product.offerPrice ?? item.product.price) * Number(item.quantity ?? item.quatity ?? 1)), 0);
-  const vat = +(subtotal * 0.02).toFixed(2);
   const deliveryCharge = 40;
-  const total = subtotal + vat + deliveryCharge;
+  const total = subtotal + deliveryCharge;
   return (
     <span className="text-[#c9595a] font-medium flex flex-col items-end gap-0.5 text-right text-[17px]">
       <span className="text-[#c9595a] font-medium">Subtotal: {currency}{subtotal}</span>
-      <span className="text-[#c9595a] font-medium">VAT (2%): {currency}{vat}</span>
       <span className="text-[#c9595a] font-medium">Delivery Charge: {currency}{deliveryCharge}</span>
       <span className="text-[#c9595a] font-medium">Total Amount: {currency}{total}</span>
     </span>
