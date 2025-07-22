@@ -1,22 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import { assets } from '../../assets/assets';
+import toast from 'react-hot-toast';
 
 const SellerLogin = () => {
-  const { isSeller, setIsSeller, navigate } = useAppContext();
+  const { isSeller, setIsSeller, navigate, axios } = useAppContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const onSubmitHandler = async (event) => {
-    event.preventDefault();
-    if (!email || !password) {
-      setError("Email and password are required.");
-      return;
+    
+    try {
+      event.preventDefault();
+      const {data} = await axios.post('/api/seller/login', {email, password})
+      if(data.success){
+        setIsSeller(true)
+        navigate('/seller')
+      }
+      else{
+        toast.error(data.message)
+      }
+    } catch (error) {
+
+      toast,eeror(error.message)
+      
     }
-    // Mock authentication logic (replace with real logic as needed)
-    setIsSeller(true);
-    setError("");
   };
 
   useEffect(() => {

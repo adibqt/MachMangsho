@@ -4,6 +4,9 @@ import { dummyProducts } from "../assets/assets";
 import toast from "react-hot-toast";
 import axios from "axios";
 
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
+
 export const AppContext = React.createContext();
 
 export const AppContextProvider = ({ children }) => {
@@ -11,16 +14,30 @@ export const AppContextProvider = ({ children }) => {
     const currency = import.meta.env.VITE_CURRENCY || "৳"; // Currency from environment variable with fallback
     const navigate = useNavigate();
     const [user,setUser] = useState(null);
-    const [isSeller, setIsSeller] = useState(() => {
-    // Check localStorage for seller state on load
-    return localStorage.getItem("isSeller") === "true";
-  });
+    const [isSeller, setIsSeller] = useState(false);
     const [showUserLogin,setShowUserLogin] = useState(false);
     const [products,setProducts] = useState([]);
 
     const [cartItems,setCartItems] = React.useState({});
     const [searchQuery,setSearchQuery] = React.useState({});
     
+    // Fetch Seller Status
+    const fetchSeller = async ()=>{
+        try {
+            const{data} = await axios.get('/api/seller/is-auth');
+            if(data.success){
+                setIsSeller(true)
+            }
+            else{
+               setIsSeller(false) 
+            }
+        } catch (error) {
+            setIsSeller(false) 
+            
+        }
+    }
+    
+    // Fetch All Products
     const fetchProducts = async () => {
         setProducts(dummyProducts)
     }
@@ -59,6 +76,7 @@ export const AppContextProvider = ({ children }) => {
         toast.success("Item removed from cart");
     }
     useEffect(() => {
+        fetchSeller();
         fetchProducts();
     }, [])
 
