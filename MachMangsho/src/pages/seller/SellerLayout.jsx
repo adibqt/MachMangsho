@@ -1,10 +1,11 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
 import { assets } from "../../assets/assets";
 import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
 
 const SellerLayout = () => {
 
-    const{ setIsSeller } = useAppContext();
+    const{ axios, navigate } = useAppContext();
 
     
 
@@ -18,7 +19,19 @@ const SellerLayout = () => {
 ];
 
     const logout = async ()=>{
-        setIsSeller(false);
+        try {
+            const {data} = await axios.get('/api/seller/logout');
+            if(data.success){
+                toast.success(data.message)
+                navigate('/')
+            }
+            else{
+                toast.error(data.message)
+            }
+        } catch (error) {
+            toast.error(data.message)
+            
+        }
     }
 
     return (
