@@ -2,12 +2,13 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { dummyProducts } from "../assets/assets";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 export const AppContext = React.createContext();
 
 export const AppContextProvider = ({ children }) => {
 
-    const currency = "৳"; // You can change this to any currency symbol you want
+    const currency = import.meta.env.VITE_CURRENCY || "৳"; // Currency from environment variable with fallback
     const navigate = useNavigate();
     const [user,setUser] = useState(null);
     const [isSeller, setIsSeller] = useState(() => {
@@ -92,7 +93,7 @@ export const AppContextProvider = ({ children }) => {
   }, [isSeller]);
 
   const value = {navigate, user, setUser, isSeller, setIsSeller, showUserLogin, setShowUserLogin,products,currency,addToCart,updateCartItem, 
-    removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery, getCartAmount, getCartCount};
+    removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios};
   return <AppContext.Provider value={value}>
     {children}
   </AppContext.Provider>;   
