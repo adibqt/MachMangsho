@@ -4,7 +4,7 @@ import cors from 'cors';
 import { connect } from 'mongoose';
 import connectDB from './configs/db.js';
 import dotenv from 'dotenv/config';
-
+import userRouter from './routes/userRoute.js';
 
 
 const app = express();
@@ -21,6 +21,8 @@ app.use(cors({origin: allowedOrigins, credentials: true}));
 app.get('/', (req, res) => {
   res.send('API is running');
 });
+
+app.use('/api/user', userRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
