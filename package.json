@@ -1,0 +1,10 @@
+{
+  "name": "machmangsho-root",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "cd MachMangsho && npx vite",
+    "build": "cd MachMangsho && npm run build",
+    "preview": "cd MachMangsho && npm run preview"
+  },
+  "description": "Root package.json for MachMangsho project - redirects to React app"
+}
