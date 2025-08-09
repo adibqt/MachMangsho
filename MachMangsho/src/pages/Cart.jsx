@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { dummyAddress, assets } from '../assets/assets';
 
 
 const Cart = () => {
-    const {products, curency, cartItems, removeFromCart, getCartCount, updateCartItem, navigate, getCartAmount } = useAppContext();
+    const {products, curency, cartItems, removeFromCart, getCartCount, updateCartItem, navigate, getCartAmount, axios, user } = useAppContext();
     const [cartArray, setCartArray] =useState([]);
-    const defaultAddress = { street: 'street 123', city: 'Dhaka', state: '', country: 'Bangladesh' };
-    const [addresses, setAddresses] = useState([defaultAddress]);
+    const [addresses, setAddresses] = useState([]);
     const [showAddress, setShowAddress] = useState(false);
-    const [selectedAddress, setSelectedAddress] = useState(defaultAddress);
+    const [selectedAddress, setSelectedAddress] = useState(null);
     const[paymentOption, setPaymentOption] = useState("COD");
 
     const getCart = ()=> {
@@ -23,7 +22,47 @@ const Cart = () => {
         }
         setCartArray(tempArray);
     }
+
+    const getUserAddress = async () => {
+        try {
+            const {data} = await axios.get('/api/address/get');
+            if(data.success){
+                setAddresses(data.addresses);
+                if(data.addresses.length > 0){
+                    setSelectedAddress(data.addresses[0]);
+                }
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
+    }
+
+
     const placeOrder = async () => {
+        try{
+            if(!selectedAddress){
+                return toast.error("Please select an address");
+                
+            }
+            
+            const orderData = {
+                products: cartArray,
+                address: selectedAddress,
+                paymentOption,
+            }
+
+            const {data} = await axios.post('/api/order/place', orderData);
+            if(data.success){
+                toast.success(data.message);
+                navigate('/orders');
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
 
     }
 
@@ -35,7 +74,12 @@ const Cart = () => {
 
         }, [products, cartItems]);
 
-    
+    useEffect(() => {
+        if(user){
+        getUserAddress()
+        }
+    }, [user])
+
     return products.length > 0 && cartItems  ? (
         <div className="flex flex-col md:flex-row mt-16 gap-8">
             <div className='flex-1 max-w-4xl'>

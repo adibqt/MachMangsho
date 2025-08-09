@@ -36,10 +36,34 @@ export const AppContextProvider = ({ children }) => {
             
         }
     }
+
+
+    // Fetch User Auth Status, User Data and Cart Items
+
+    const fetchUser = async () => {
+        try {
+            const { data } = await axios.get('api/user/is-auth');
+            if (data.success) {
+                setUser(data.user);
+                setCartItems(data.user.cartItems)
+            }
+        } catch (error) {
+            setUser(null)
+        }
+    }
     
     // Fetch All Products
     const fetchProducts = async () => {
-        setProducts(dummyProducts)
+        try {
+            const { data } = await axios.get('/api/product/list');
+            if (data.success) {
+                setProducts(data.products);
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
     }
 
     // ADD Products to cart
@@ -107,11 +131,30 @@ export const AppContextProvider = ({ children }) => {
      
     // Persist isSeller to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("isSeller", isSeller);
-  }, [isSeller]);
+    fetchUser();
+    fetchSeller();
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    const updatedCartItems = async () => {
+      try {
+        const { data } = await axios.post('/api/user/update', { cartItems });
+        if (!data.success) {
+          toast.error(data.message);
+        }
+      } catch (error) {
+        toast.error(error.message)
+      }
+    }
+    if(user){
+        updatedCartItems();
+    }    
+
+  },[cartItems])
 
   const value = {navigate, user, setUser, isSeller, setIsSeller, showUserLogin, setShowUserLogin,products,currency,addToCart,updateCartItem, 
-    removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios};
+    removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios, fetchProducts};
   return <AppContext.Provider value={value}>
     {children}
   </AppContext.Provider>;   

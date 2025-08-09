@@ -10,8 +10,44 @@ const AddProduct = () => {
     const [price, setPrice] = useState('');
     const [offerPrice, setOfferPrice] = useState('');
 
+    const { axios } = useAppContext();
+
     const onSubmitHandler = async (event) =>{
+      try{
         event.preventDefault();
+
+        const productData = {
+          name,
+          description,
+          category,
+          price,
+          offerPrice,
+        }
+        
+        const formData = new FormData();
+        formData.append('productData', JSON.stringify(productData));
+        for (let i = 0; i < files.length; i++) {
+          formData.append('images', files[i]);
+        }
+
+        const {data} = await axios.post('/api/product/add', formData)
+        if(data.success){
+          toast.success(data.message);
+          setName('');
+          setDescription('');
+          setCategory('');
+          setPrice('');
+          setOfferPrice('');
+          serFiles([]);
+        }
+        else{
+          toast.error(data.message);
+        }
+
+       } catch (error) {
+         toast.error(error);
+       }
+        
         
     }
 
