@@ -92,8 +92,9 @@ export const isAuth = async (req, res) => {
         }
         return res.json({success: true, user});
     } catch (error) {
-        console.log(error.message);
-        return res.json({success: false, message: error.message});
+        console.log("User auth check error:", error.message);
+        // Return not authenticated if database is not connected
+        return res.json({success: false, message: "Not authenticated"});
     }
 }
 
