@@ -8,7 +8,16 @@ const Orders = () => {
     const [orders, setOrders] = useState([]);
 
     const fetchOrders = async () =>{
-        setOrders(dummyOrders);
+        try{
+          const {data} = await axios.get('/api/order/seller');
+          if(data.success){
+            setOrders(data.orders);
+          }else{
+            toast.error(data.message);
+          }
+        } catch (error) {
+          toast.error(error.message);
+        }
 
     };
 

@@ -8,14 +8,24 @@ const MyOrders = () => {
     const {currency} = useAppContext();
 
     const fetchMyOrders = async () => {
-        setMyOrders(dummyOrders);
+        try {
+            const {data} = await axios.get('/api/order/user')
+            if(data.success){
+                setMyOrders(data.orders);
+            }
+        } catch (error) {
+            console.error(error);
+            
+        }
 
     }
 
     useEffect(()=>{
+        if(user){
         fetchMyOrders();
+        }
 
-    },[])
+    },[user])
   return (
     <div className='mt-16 pb-16'>
         <div className='flex flex-col items-end w-max mb-8'>
