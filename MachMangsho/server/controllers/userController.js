@@ -1,6 +1,8 @@
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+
+
 export const register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -68,9 +70,45 @@ export const login = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
-        return res.json({ success: true, user: { email: user.email, name: user.name } });
+    return res.json({ success: true, token, user: { email: user.email, name: user.name } });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
+
+//Check Auth: /api/user/is-auth
+
+
+export const isAuth = async (req, res) => {
+    try {
+        const userId = req.userId; // provided by authUser middleware
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'Not Authorized' });
+        }
+        const user = await User.findById(userId).select('-password');
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'Not Authorized' });
+        }
+        return res.json({ success: true, user });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+}
+
+export  const logout = async(req, res) => {
+    try {
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'strict'
+        });
+
+        return res.json({ success: true, message: "Logged out successfully" });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+}
