@@ -37,6 +37,20 @@ export const AppContextProvider = ({ children }) => {
         }
     }
 
+    // Logout Seller helper
+    const logoutSeller = async () => {
+        try {
+            const { data } = await axios.post('/api/seller/logout');
+            if (data?.success) {
+                setIsSeller(false);
+                toast.success('Logged out successfully');
+            } else {
+                toast.error(data?.message || 'Logout failed');
+            }
+        } catch (error) {
+            toast.error(error?.response?.data?.message || error.message || 'Logout failed');
+        }
+    };
 
     // Fetch User Auth Status, User Data and Cart Items
 
@@ -136,25 +150,25 @@ export const AppContextProvider = ({ children }) => {
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-    const updatedCartItems = async () => {
-      try {
-        const { data } = await axios.post('/api/user/update', { cartItems });
-        if (!data.success) {
-          toast.error(data.message);
+    useEffect(() => {
+        const updatedCartItems = async () => {
+            try {
+                const { data } = await axios.put('/api/cart/update', { cartItems });
+                if (!data.success) {
+                    toast.error(data.message);
+                }
+            } catch (error) {
+                toast.error(error.message)
+            }
         }
-      } catch (error) {
-        toast.error(error.message)
-      }
-    }
-    if(user){
-        updatedCartItems();
-    }    
+        if (user) {
+            updatedCartItems();
+        }
 
-  },[cartItems])
+    }, [cartItems, user])
 
-  const value = {navigate, user, setUser, isSeller, setIsSeller, showUserLogin, setShowUserLogin,products,currency,addToCart,updateCartItem, 
-    removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios, setCartItems};
+    const value = {navigate, user, setUser, isSeller, setIsSeller, showUserLogin, setShowUserLogin,products,currency,addToCart,updateCartItem, 
+        removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios, setCartItems, logoutSeller};
   return <AppContext.Provider value={value}>
     {children}
   </AppContext.Provider>;   
