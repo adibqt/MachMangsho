@@ -79,39 +79,51 @@ const fetchUser = async () => {
         }
     }
 
+    // Sync cart to backend for logged-in users; fallback to localStorage for guests
+    const syncCart = async (nextCart) => {
+        try {
+            if (user?._id) {
+                await axios.put('/api/cart/update', { cartItems: nextCart });
+            } else {
+                localStorage.setItem('cartItems', JSON.stringify(nextCart));
+            }
+        } catch (err) {
+            // Non-blocking: keep UI responsive even if sync fails
+            console.error('Cart sync failed:', err?.response?.data || err?.message);
+        }
+    };
+
     // ADD Products to cart
     const addToCart = (itemID) => {
-        let cartData = structuredClone(cartItems);
-        if(cartData[itemID]){
-            cartData[itemID] += 1;
-        }else{
-            cartData[itemID] = 1;
-        }
-
+        const cartData = structuredClone(cartItems);
+        cartData[itemID] = (cartData[itemID] || 0) + 1;
         setCartItems(cartData);
+        syncCart(cartData);
         toast.success("Item added to cart");
-    }
+    };
 
     const updateCartItem = (itemID, quantity) => {
-        let cartData = structuredClone(cartItems);
+        const cartData = structuredClone(cartItems);
         cartData[itemID] = quantity;
+        if (cartData[itemID] <= 0) delete cartData[itemID];
         setCartItems(cartData);
+        syncCart(cartData);
         toast.success("Cart updated successfully");
-    
-    }
+    };
 
     // remove item from cart
     const removeFromCart = (itemID) => {
-        let cartData = structuredClone(cartItems);
-        if(cartData[itemID]){
+        const cartData = structuredClone(cartItems);
+        if (cartData[itemID]) {
             cartData[itemID] -= 1;
-            if(cartData[itemID] <= 0){
+            if (cartData[itemID] <= 0) {
                 delete cartData[itemID];
             }
-    }
+        }
         setCartItems(cartData);
+        syncCart(cartData);
         toast.success("Item removed from cart");
-    }
+    };
     useEffect(() => {
         fetchProducts();
     }, [])
@@ -142,12 +154,20 @@ const fetchUser = async () => {
 
      
     // Persist isSeller to localStorage whenever it changes
-  useEffect(() => {
-    fetchUser();
-    fetchSeller();
-    fetchProducts();
-    
-  }, []);
+    useEffect(() => {
+        (async () => {
+            await fetchUser();
+            // For guests, hydrate cart from localStorage
+            if (!user?._id) {
+                const saved = localStorage.getItem('cartItems');
+                if (saved) {
+                    try { setCartItems(JSON.parse(saved) || {}); } catch {}
+                }
+            }
+        })();
+        fetchSeller();
+        fetchProducts();
+    }, []);
 
     const value = {navigate, user, setUser, isSeller, setIsSeller, logoutSeller, showUserLogin, setShowUserLogin,products,currency,addToCart,updateCartItem, 
         removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios};
