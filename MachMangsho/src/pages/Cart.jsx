@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 
 
 const Cart = () => {
-    const {products, curency, cartItems, removeFromCart, getCartCount, updateCartItem, navigate, getCartAmount, axios, user } = useAppContext();
+    const {products, curency, cartItems, removeFromCart, getCartCount, updateCartItem, navigate, getCartAmount, axios, user, setCartItems } = useAppContext();
     const [cartArray, setCartArray] =useState([]);
     const defaultAddress = { street: 'street 123', city: 'Dhaka', state: '', country: 'Bangladesh' };
     const [addresses, setAddresses] = useState([]);
@@ -42,6 +42,31 @@ const Cart = () => {
     }
 
     const placeOrder = async () => {
+        try {
+            if (!selectedAddress) {
+                return toast.error("Please select a delivery address.");
+                
+            }
+            // Place order with COD
+
+        if(paymentOption === "COD"){
+            const {data} = await axios.post('/api/order/cod', {
+                userId: user._id,
+                items: cartArray.map(item=> ({product: item._id, quantity: item.quantity})),
+                address: selectedAddress._id
+            });
+            
+            if(data.success){
+                toast.success("Order placed successfully");
+                setCartItems({});
+                navigate('/my-orders');
+            }else{
+                toast.error(data.message);
+            }
+        }
+    } catch (error) {
+        toast.error(error.message);
+    }
 
     }
 
