@@ -51,17 +51,20 @@ const logoutSeller = async () => {
 };
 
 // Fetch User Auth Status, User Data and Cart Items
-
 const fetchUser = async () => {
     try {
         const{data} = await axios.get('/api/user/is-auth');
         if(data.success){
             setUser(data.user);
-            setCartItems(data.user.cartItems);
+            // Only set cart items from server if user has saved cart items
+            if (data.user.cartItems && Object.keys(data.user.cartItems).length > 0) {
+                setCartItems(data.user.cartItems);
+            }
+        } else {
+            setUser(null);
         }
     } catch (error) {
         setUser(null);
-        setCartItems({});
     }
 }
 
@@ -90,6 +93,7 @@ const fetchUser = async () => {
         } catch (err) {
             // Non-blocking: keep UI responsive even if sync fails
             console.error('Cart sync failed:', err?.response?.data || err?.message);
+            toast.error('Failed to save cart. Please try again.');
         }
     };
 
@@ -153,21 +157,31 @@ const fetchUser = async () => {
     }
 
      
-    // Persist isSeller to localStorage whenever it changes
+    // Initialize app data on mount
     useEffect(() => {
-        (async () => {
+        const initializeApp = async () => {
+            // Fetch user first to determine if logged in
             await fetchUser();
-            // For guests, hydrate cart from localStorage
-            if (!user?._id) {
-                const saved = localStorage.getItem('cartItems');
-                if (saved) {
-                    try { setCartItems(JSON.parse(saved) || {}); } catch {}
+            await fetchSeller();
+            await fetchProducts();
+        };
+        initializeApp();
+    }, []);
+
+    // Hydrate cart from localStorage for guests only, after user state is determined
+    useEffect(() => {
+        if (user === null) { // Explicitly null means we've determined user is not logged in
+            const saved = localStorage.getItem('cartItems');
+            if (saved) {
+                try { 
+                    const savedCart = JSON.parse(saved) || {};
+                    setCartItems(savedCart);
+                } catch {
+                    setCartItems({});
                 }
             }
-        })();
-        fetchSeller();
-        fetchProducts();
-    }, []);
+        }
+    }, [user]);
 
     const value = {navigate, user, setUser, isSeller, setIsSeller, logoutSeller, showUserLogin, setShowUserLogin,products,currency,addToCart,updateCartItem, 
         removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios, setCartItems};

@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom'
 import { assets } from '../assets/assets'
 import { useAppContext } from '../context/AppContext'
 import toast from 'react-hot-toast'
-//import { set } from 'mongoose'
+
 
 
 function Navbar() {

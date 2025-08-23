@@ -2,8 +2,9 @@
 
 import Order from "../models/Order.js";
 import Product from "../models/product.js";
-//import stipe from "stripe";
+
 import User from "../models/User.js";
+import stripe from "stripe";
 
 
 //Place Order COD : /api/order/cod
@@ -24,14 +25,21 @@ export const placeOrderCOD = async (req,res)=>{
 
         //Add Tax Charge(2%)
         amount += Math.floor(amount * 0.02);
+        
+        // Add delivery charge (same as frontend Cart.jsx and Stripe)
+        const deliveryCharge = 40; // BDT 40
+        amount += deliveryCharge;
 
-        await Order.create({
+    await Order.create({
             userId,
             items,
             amount,
             address,
             paymentType: "COD"
         });
+
+    // Clear cart after successful order placement
+    try { await User.findByIdAndUpdate(userId, { cartItems: {} }); } catch {}
 
         return res.json({success: true, messsage: "Order Placed Successfully"})
     } catch (error) {
@@ -43,6 +51,167 @@ export const placeOrderCOD = async (req,res)=>{
 
 
 //Place Order Stripe : /api/order/stripe
+
+export const placeOrderStripe = async (req, res) => {
+
+    try {
+        const{userId, items, address} = req.body;
+        const{origin} = req.headers;
+        if(!address || items.length === 0){
+            return res.json({success: false, message: "Invalid data"})
+        }
+
+        let productData = [];
+
+        // Calculate Amount Using Items
+        let amount = await items.reduce(async (acc, item) =>{
+            const product = await Product.findById(item.product);
+            productData.push({
+                name: product.name,
+                price: product.offerPrice,
+                quantity: item.quantity,
+            });
+            return (await acc) + product.offerPrice * item.quantity;
+
+        },0)
+
+        //Add Tax Charge(2%)
+        amount += Math.floor(amount * 0.02);
+        
+        // Add delivery charge (same as frontend Cart.jsx)
+        const deliveryCharge = 40; // BDT 40
+        amount += deliveryCharge;
+
+        const order = await Order.create({
+            userId,
+            items,
+            amount,
+            address,
+            paymentType: "Online"
+        });
+         
+        // Stripe Gateway Initialize
+        const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
+
+        // Stripe currency configuration
+        const STRIPE_CURRENCY = process.env.STRIPE_CURRENCY || "usd";
+        console.log('Stripe Currency:', STRIPE_CURRENCY); // Debug log
+        
+        //create line items for stripe
+        const line_items = productData.map(item => {
+            const itemTotalWithTax = item.price * 1.02; // 2% tax
+            console.log(`Item: ${item.name}, Price: ${item.price}, With Tax: ${itemTotalWithTax}`); // Debug log
+            
+            let unit_amount;
+            if (STRIPE_CURRENCY.toLowerCase() === "bdt") {
+                // For BDT, use the exact amount in paisa (100 paisa = 1 BDT)
+                unit_amount = Math.round(itemTotalWithTax * 100);
+            } else {
+                // For USD, convert BDT to USD (approximate rate: 110 BDT = 1 USD)
+                const usdAmount = itemTotalWithTax / 110;
+                unit_amount = Math.round(usdAmount * 100); // Convert to cents
+            }
+            
+            console.log(`Final unit_amount for Stripe: ${unit_amount}`); // Debug log
+            
+            return {
+                price_data: {
+                    currency: STRIPE_CURRENCY.toLowerCase(),
+                    product_data: {
+                        name: item.name,
+                    },
+                    unit_amount: unit_amount
+                },
+                quantity: item.quantity,
+            };
+        });
+
+        // Add delivery charge as separate line item
+        let deliveryUnitAmount;
+        if (STRIPE_CURRENCY.toLowerCase() === "bdt") {
+            deliveryUnitAmount = deliveryCharge * 100; // Convert to paisa
+        } else {
+            deliveryUnitAmount = Math.round((deliveryCharge / 110) * 100); // Convert to USD cents
+        }
+
+        line_items.push({
+            price_data: {
+                currency: STRIPE_CURRENCY.toLowerCase(),
+                product_data: {
+                    name: "Delivery Charge",
+                },
+                unit_amount: deliveryUnitAmount
+            },
+            quantity: 1,
+        });
+
+        console.log('Total line items:', line_items.length, 'Delivery charge:', deliveryUnitAmount); // Debug log
+ 
+         //create session
+         
+         const session = await stripeInstance.checkout.sessions.create({
+            line_items,
+            mode: 'payment',
+            success_url: `${origin}/loader?next=my-orders`,
+            cancel_url: `${origin}/cart`,
+            metadata: {
+                orderId: order._id.toString(),
+                userId,
+            }
+        })
+
+        return res.json({success: true, url: session.url})
+    } catch (error) {
+
+        return res.json({success: false, message: error.message});
+        
+    }
+}
+
+
+export const stripeWebhook = async (request, response) => {
+    const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
+    const sig = request.headers['stripe-signature'];
+    let event;
+
+    try{
+        event = stripeInstance.webhooks.constructEvent(request.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    } catch (error) {
+        response.status(400).send(`Webhook Error: ${error.message}`);
+        
+    }
+
+    switch(event.type) {
+        case 'payment_intent.succeeded': {
+            const paymentIntent = event.data.object;
+            const paymentIntentId = paymentIntent.id;
+           
+            const session = await stripeInstance.checkout.sessions.list({payment_intent : paymentIntentId,});
+            const { orderId, userId } = session.data[0].metadata;
+            await Order.findByIdAndUpdate(orderId, {isPaid: true})
+            await User.findByIdAndUpdate(userId, {cartItems: {}});   
+
+            break;
+        }
+         
+        case 'payment_intent.payment_failed': {
+          const paymentIntent = event.data.object;
+            const paymentIntentId = paymentIntent.id;
+           
+            const session = await stripeInstance.checkout.sessions.list({payment_intent : paymentIntentId,});
+            const { orderId, userId } = session.data[0].metadata;
+            break;
+        }
+        default:
+            console.error(`Unhandled event type ${event.type}`);
+
+            break;
+    }
+
+    response.json({recieved: true})
+    
+    
+}
 
 
 // Get Orders by User ID : /api/order/user

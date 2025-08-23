@@ -4,6 +4,7 @@ import { dummyAddress, assets } from '../assets/assets';
 import toast from 'react-hot-toast';
 
 
+
 const Cart = () => {
     const {products, curency, cartItems, removeFromCart, getCartCount, updateCartItem, navigate, getCartAmount, axios, user, setCartItems } = useAppContext();
     const [cartArray, setCartArray] =useState([]);
@@ -63,7 +64,22 @@ const Cart = () => {
             }else{
                 toast.error(data.message);
             }
-        }
+        }else {
+            const {data} = await axios.post('/api/order/stripe', {
+                userId: user._id,
+                items: cartArray.map(item => ({product: item._id, quantity: item.quantity})),
+                    address: selectedAddress._id,
+            })
+
+            
+            if(data.success){
+                window.location.replace(data.url);
+             
+            } else {
+                toast.error(data.message)
+            }
+                
+            }
     } catch (error) {
         toast.error(error.message);
     }
