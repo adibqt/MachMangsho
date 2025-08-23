@@ -50,9 +50,33 @@ const logoutSeller = async () => {
     }
 };
 
+// Fetch User Auth Status, User Data and Cart Items
+
+const fetchUser = async () => {
+    try {
+        const{data} = await axios.get('/api/user/is-auth');
+        if(data.success){
+            setUser(data.user);
+            setCartItems(data.user.cartItems);
+        }
+    } catch (error) {
+        setUser(null);
+        setCartItems({});
+    }
+}
+
 
     const fetchProducts = async () => {
-        setProducts(dummyProducts)
+        try {
+            const {data} = await axios.get('/api/product/list');
+            if(data.success){
+                setProducts(data.products);
+            }else{
+                toast.error('Failed to fetch products');
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
     }
 
     // ADD Products to cart
@@ -119,8 +143,10 @@ const logoutSeller = async () => {
      
     // Persist isSeller to localStorage whenever it changes
   useEffect(() => {
+    fetchUser();
     fetchSeller();
     fetchProducts();
+    
   }, []);
 
     const value = {navigate, user, setUser, isSeller, setIsSeller, logoutSeller, showUserLogin, setShowUserLogin,products,currency,addToCart,updateCartItem, 

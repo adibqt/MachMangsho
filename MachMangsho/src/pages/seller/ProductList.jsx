@@ -1,9 +1,25 @@
 import React from 'react'
 import { useAppContext } from '../../context/AppContext';
+import { assets } from '../../assets/assets';
+import toast from 'react-hot-toast';
 
 const ProductList = () => {
 
-    const{products, currency} = useAppContext();
+    const{products, currency, axios, fetchProducts} = useAppContext();
+
+    const toggleStock = async (id, inStock)=>{
+        try {
+            const { data } = await axios.put('/api/product/stock', { id, inStock});
+            if(data.success){
+                fetchProducts();
+                toast.success('Product stock status updated successfully');
+            } else{
+                toast.error('Failed to update stock status');
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
+    }
 
   return (
     <div className="no-scrollbar flex-1 h-[95vh] overflow-y-scroll flex flex-col justify-between">
@@ -24,7 +40,7 @@ const ProductList = () => {
                                 <tr key={product._id} className="border-t border-gray-500/20">
                                     <td className="md:px-4 pl-2 md:pl-4 py-3 flex items-center space-x-3 truncate">
                                         <div className="border border-gray-300 rounded overflow-hidden">
-                                            <img src={product.image[0]} alt="Product" className="w-16" />
+                                            <img src={product.images?.[0] || assets.upload_area} alt="Product" className="w-16" />
                                         </div>
                                         <span className="truncate max-sm:hidden w-full">{product.name}</span>
                                     </td>
@@ -32,7 +48,7 @@ const ProductList = () => {
                                     <td className="px-4 py-3 max-sm:hidden">{currency}{product.offerPrice}</td>
                                     <td className="px-4 py-3">
                                         <label className="relative inline-flex items-center cursor-pointer text-gray-900 gap-3">
-                                            <input type="checkbox" className="sr-only peer" />
+                                            <input onClick={() => toggleStock(product._id, !product.inStock)} checked={product.inStock} type="checkbox" className="sr-only peer" />
                                             <div className="w-12 h-7 bg-slate-300 rounded-full peer peer-checked:bg-[#c9595a] transition-colors duration-200"></div>
                                             <span className="dot absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-5"></span>
                                         </label>
