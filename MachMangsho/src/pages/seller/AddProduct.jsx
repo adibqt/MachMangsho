@@ -1,53 +1,54 @@
 import React, { useState } from 'react'
 import { assets, categories } from '../../assets/assets';
+import { useAppContext } from '../../context/AppContext';
+import toast from 'react-hot-toast';
 
 const AddProduct = () => {
     const [focusedImage, setFocusedImage] = useState(null);
-    const [files, serFiles] = useState([]);
+  const [files, setFiles] = useState([]);
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('');
     const [price, setPrice] = useState('');
     const [offerPrice, setOfferPrice] = useState('');
 
-    const { axios } = useAppContext();
+    const {axios} = useAppContext();
 
     const onSubmitHandler = async (event) =>{
-      try{
-        event.preventDefault();
+       try {
+         event.preventDefault();
 
-        const productData = {
-          name,
-          description,
-          category,
-          price,
-          offerPrice,
-        }
-        
-        const formData = new FormData();
-        formData.append('productData', JSON.stringify(productData));
-        for (let i = 0; i < files.length; i++) {
-          formData.append('images', files[i]);
-        }
+         const productData = {
+             name,
+             description: description.split('\n'),
+             category,
+             price,
+             offerPrice,
+            
+         }
 
-        const {data} = await axios.post('/api/product/add', formData)
-        if(data.success){
-          toast.success(data.message);
+         const formData = new FormData();
+         formData.append('productData', JSON.stringify(productData));
+         files.filter(Boolean).forEach((file) => {
+           formData.append('images', file);
+         });
+       
+         // Don't set Content-Type manually; the browser will set the correct multipart boundary
+         const {data} = await axios.post('/api/product/add', formData)
+
+         if(data.success){
+          toast.success('Product added successfully');
           setName('');
           setDescription('');
           setCategory('');
           setPrice('');
           setOfferPrice('');
-          serFiles([]);
-        }
-        else{
-          toast.error(data.message);
-        }
-
+          setFiles([]);
+         } else{
+          toast.error('Failed to add product');}
        } catch (error) {
-         toast.error(error);
+        toast.error(error.message)
        }
-        
         
     }
 
@@ -69,9 +70,9 @@ const AddProduct = () => {
   >
     <input
       onChange={(e) => {
-        const updatedFiles = [...files];
-        updatedFiles[index] = e.target.files[0];
-        serFiles(updatedFiles);
+  const updatedFiles = [...files];
+  updatedFiles[index] = e.target.files[0];
+  setFiles(updatedFiles);
       }}
       accept="image/*"
       type="file"

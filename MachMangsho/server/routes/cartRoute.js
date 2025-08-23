@@ -1,10 +1,11 @@
 import express from "express";
-import { updateCart } from "../controllers/cartController.js";
 import authUser from "../middlewares/authUser.js";
-
+import { updateCart } from "../controllers/cartController.js";
 
 const cartRouter = express.Router();
 
-cartRouter.post('/update', authUser, updateCart)
+cartRouter.put('/update', authUser, updateCart);
 
+// Export both named and default to avoid ESM import issues
+export { cartRouter };
 export default cartRouter;

@@ -1,8 +1,9 @@
 import React from 'react'
 import { useAppContext } from '../context/AppContext'
+import toast from 'react-hot-toast';
 
 const Login = () => {
-    const { setShowUserLogin, setUser, axios, navigate } = useAppContext();  // Added setUser here
+    const { setShowUserLogin, setUser, axios, navigate} = useAppContext();  // Added setUser here
     const [state, setState] = React.useState("login");
     const [name, setName] = React.useState("");
     const [email, setEmail] = React.useState("");
@@ -12,20 +13,35 @@ const Login = () => {
         try {
             event.preventDefault();
             const { data } = await axios.post(`/api/user/${state}`, {
-                name,email,password
+                name,
+                email,
+                password,
             });
+
             if (data.success) {
-                navigate('/') 
-                setUser(data.user);  
+                navigate('/'); // Redirect to home page after login/registration
+                setUser(data.user); // Set user data in context
                 setShowUserLogin(false);
-            
+                toast.success(`${state === 'login' ? 'Login' : 'Registration'} successful!`);
             } else {
-                toast.error(data.message);
+                toast.error(data.message || 'Request failed');
             }
         } catch (error) {
-            toast.error(error.message);
+            const resp = error?.response;
+            const serverData = resp?.data;
+            const validationMsg = Array.isArray(serverData?.errors) ? serverData.errors[0]?.msg : undefined;
+            let message = serverData?.message || serverData?.error || validationMsg || error.message;
+
+            // Optional friendly fallbacks by status if server message is missing
+            if (!serverData?.message && resp?.status) {
+                if (resp.status === 409) message = 'Account already exists';
+                else if (resp.status === 401) message = 'Incorrect password';
+                else if (resp.status === 404) message = 'No account found for this email';
+            }
+
+            toast.error(message);
         }
-    }
+    }; // Added missing closing brace and semicolon
 
     return (
     <div onClick={() => setShowUserLogin(false)} className='fixed top-0 bottom-0 left-0 right-0 z-30 flex items-center text-sm text-gray-600 bg-black/50'>

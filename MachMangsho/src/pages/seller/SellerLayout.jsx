@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 
 const SellerLayout = () => {
 
-    const{ axios, navigate } = useAppContext();
+    const { logoutSeller } = useAppContext();
 
     
 
@@ -18,20 +18,9 @@ const SellerLayout = () => {
     { name: "Orders", path: "/seller/orders", icon: assets.order_icon },
 ];
 
-    const logout = async ()=>{
-        try {
-            const {data} = await axios.get('/api/seller/logout');
-            if(data.success){
-                toast.success(data.message)
-                navigate('/')
-            }
-            else{
-                toast.error(data.message)
-            }
-        } catch (error) {
-            toast.error(error.message)
-            
-        }
+    const logout = async () => {
+        // Use context helper to clear cookie on the server and update state
+        await logoutSeller();
     }
 
     return (

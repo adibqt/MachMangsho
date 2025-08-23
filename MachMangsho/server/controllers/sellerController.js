@@ -1,63 +1,80 @@
-import jwt from 'jsonwebtoken'
 
-// Login Seller : /api/seller/login
 
-export const sellerLogin = async (req, res) =>{
-    try {
-        const{email, password} = req.body;
+import jwt from 'jsonwebtoken';
+
+//Login Seller: /api/seller/login
+
+export const sellerLogin =  async (req, res) => {
+   try {
+    const {email,password} = req.body;
+    
+    // Debug logging
+    console.log('Login attempt:');
+    console.log('Received email:', email);
+    console.log('Received password:', password);
+    console.log('Expected email:', process.env.SELLER_EMAIL);
+    console.log('Expected password:', process.env.SELLER_PASSWORD);
 
     if(password === process.env.SELLER_PASSWORD && email === process.env.SELLER_EMAIL){
-        const token =  jwt.sign({email}, process.env.JWT_SECRET, {expiresIn: '7d'});
+        const token = jwt.sign({id: email}, process.env.JWT_SECRET, {expiresIn: '7d'});
 
-        
         res.cookie('sellerToken', token, {
-            httpOnly: true, // Prevent JS to access cookie
+            httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
             secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', //CSRF protection
-            maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie expiration time
-        }) 
+            sameSite:  process.env.NODE_ENV === 'production' ? 'None' : 'strict', //CSRF protection
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
 
-        return res.json({success: true, message: "Logged In"});
+        return res.status(200).json({ success: true, message: 'Login successful' });
+    }else{
+            return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
-    else{
-        return res.json({success: false, message: "Invalid Credentials"})
-    }
-    } catch (error) {
-        console.log(error.message);
-        res.json({success: false, message: error.message});
-        
-    }
-}
+    
+   } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ success: false, message: error.message });
+   }
 
-// Seller isAuth : /api/seller/is-auth
+   
+};
+
+
+//Seller isAuth: /api/seller/is-auth
+
 export const isSellerAuth = async (req, res) => {
     try {
-       
-        return res.json({success: true});
+        return res.json({ success: true });
     } catch (error) {
-        console.log(error.message);
-        return res.json({success: false, message: error.message});
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 }
 
-// Logout Seller : /api/seller/logout
 
-export const sellerLogout = async (req,res)=>{
+//Logout Seller: /api/seller/logout
+export  const sellerLogout = async(req, res) => {
     try {
-        res.clearCookie('sellerToken',{
+        // Overwrite cookie with an immediate expiry, then clear it
+        res.cookie('sellerToken', '', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-
-            
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'strict',
+            path: '/',
+            maxAge: 0,
+            expires: new Date(0),
         });
-        return res.json({success: true, message: "Logged Out"})
-    } catch (error) {
 
-        
-        console.log(error.message);
-        res.json({success: false, message: error.message});
-        
-        
+        // Clear cookie with the same attributes used when setting it
+        res.clearCookie('sellerToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'strict',
+            path: '/',
+        });
+
+        return res.json({ success: true, message: "Logged out successfully" });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
     }
 }

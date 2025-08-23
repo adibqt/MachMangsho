@@ -1,28 +1,30 @@
 import React, { useEffect, useState } from 'react'
 import { useAppContext } from '../context/AppContext';
-import { dummyOrders } from '../assets/assets';
+import { assets } from '../assets/assets';
+import toast from 'react-hot-toast';
 
 const MyOrders = () => {
  
     const [myOrders, setMyOrders] = useState([]);
-    const {currency} = useAppContext();
+    const {currency,axios,user} = useAppContext();
 
     const fetchMyOrders = async () => {
-        try {
-            const {data} = await axios.get('/api/order/user')
+       try {
+            const {data} = await axios.get('/api/order/user');
             if(data.success){
                 setMyOrders(data.orders);
+            }else{
+                toast.error(data.message);
             }
-        } catch (error) {
-            console.error(error);
-            
-        }
+       } catch (error) {
+           toast.error(error.message);
+       }
 
     }
 
     useEffect(()=>{
         if(user){
-        fetchMyOrders();
+            fetchMyOrders();
         }
 
     },[user])
@@ -57,7 +59,7 @@ const MyOrders = () => {
                     className={`relative bg-white text-gray-500/70 ${order.items.length !== index + 1 && "border-b"} border-gray-300 flex flex-col md:flex-row md:items-center justify-between p-4 py-5 md:gap-16 w-full max-w-4xl`}>
                         <div className='flex items-center mb-4 md:mb-0' >
                             <div className='bg-primary/10 p-4 rounded-lg'>
-                                <img src={item.product.image[0]} alt="" className='w-16 h-16' />
+                                <img src={item.product.images?.[0] || assets.upload_area} alt="" className='w-16 h-16' />
                             </div>
                             <div className='ml-4'>
                                 <h2 className='text-xl font-medium text-gray-800'>{item.product.name}</h2>

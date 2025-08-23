@@ -1,13 +1,13 @@
 {
   "name": "server",
   "version": "1.0.0",
-
-  "main": "Server.js",
+  "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node Server.js",
-    "server": "nodemon Server.js"
-
+    "start": "node server.js",
+    "server": "nodemon server.js",
+    "dev": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",

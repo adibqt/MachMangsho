@@ -1,28 +1,37 @@
 import jwt from 'jsonwebtoken';
 
-const authUser = async (req, res, next) => {
-    const {token} = req.cookies;
 
-    if(!token){
-        return res.json({ success: false, message: 'Not Authorized'});
+const authUser = async (req, res, next) => {
+    // Prefer cookie token
+    let token = req.cookies && req.cookies.token ? req.cookies.token : undefined;
+
+    // Fallback to Authorization header: Bearer <token>
+    if (!token) {
+        const authHeader = req.headers && req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            token = authHeader.substring(7);
+        }
+    }
+
+    if (!token) {
+        return res.status(401).json({ success: false, message: 'Not Authorized' });
     }
 
     try {
-        const tokenDecode = jwt.verify(token, process.env.JWT_SECRET)
-        if(tokenDecode.id){
-            req.userId = tokenDecode.id;
-        }
-        else{
-            return res.json({success: false, message: 'Not Authorized'});
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoded?.id) {
+            return res.status(401).json({ success: false, message: 'Not Authorized' });
         }
 
-        next();
+        // Attach to request without relying on req.body for GET requests
+        req.userId = decoded.id;
+        return next();
     } catch (error) {
-        console.log(error.message);
-        return res.json({success: false, message: error.message});
+        return res.status(401).json({ success: false, message: 'Not Authorized' });
     }
-
-
-}
+};
 
 export default authUser;
+
+
+

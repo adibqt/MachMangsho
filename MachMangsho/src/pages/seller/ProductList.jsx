@@ -1,25 +1,25 @@
 import React from 'react'
 import { useAppContext } from '../../context/AppContext';
-import toast  from 'react-hot-toast';
+import { assets } from '../../assets/assets';
+import toast from 'react-hot-toast';
 
 const ProductList = () => {
 
     const{products, currency, axios, fetchProducts} = useAppContext();
 
-    const toggleStock = async (id, inStock) => {
+    const toggleStock = async (id, inStock)=>{
         try {
-            const { data } = await axios.post('/api/product/stock', { id, inStock});
-            if (data.success) {
-                
+            const { data } = await axios.put('/api/product/stock', { id, inStock});
+            if(data.success){
                 fetchProducts();
-                toast.success(data.message); 
-            } else {
-                toast.error(data.message);
+                toast.success('Product stock status updated successfully');
+            } else{
+                toast.error('Failed to update stock status');
             }
         } catch (error) {
             toast.error(error.message);
         }
-    };
+    }
 
   return (
     <div className="no-scrollbar flex-1 h-[95vh] overflow-y-scroll flex flex-col justify-between">
@@ -40,7 +40,7 @@ const ProductList = () => {
                                 <tr key={product._id} className="border-t border-gray-500/20">
                                     <td className="md:px-4 pl-2 md:pl-4 py-3 flex items-center space-x-3 truncate">
                                         <div className="border border-gray-300 rounded overflow-hidden">
-                                            <img src={product.image[0]} alt="Product" className="w-16" />
+                                            <img src={product.images?.[0] || assets.upload_area} alt="Product" className="w-16" />
                                         </div>
                                         <span className="truncate max-sm:hidden w-full">{product.name}</span>
                                     </td>

@@ -1,12 +1,16 @@
-import mongoose from "mongoose";
+
+import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
-    name: {type:String, required: true},
-    email: {type:String, required: true, unique: true},
-    password: {type:String, required: true},
-    cartItems: {type:Object, default: {}},
-}, {minimize: false})
+    name: {type: String, required: true},
+    email: {type: String, required: true, unique: true},
+    password: {type: String, required: true},
+    cartItems: {type: Object, default: {}},
 
-const User = mongoose.models.user || mongoose.model('user', userSchema)
+},{minimize: false})
+const User = mongoose.models.user || mongoose.model('user' , userSchema)
 
-export default User
+// Export both named and default to avoid ESM import issues
+export { User };
+export default User;
+

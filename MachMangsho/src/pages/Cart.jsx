@@ -1,15 +1,18 @@
 import React, { useState, useEffect, use } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { dummyAddress, assets } from '../assets/assets';
+import toast from 'react-hot-toast';
+
 
 
 const Cart = () => {
-    const {products, curency, cartItems, removeFromCart, getCartCount, updateCartItem, navigate, getCartAmount, axios, user } = useAppContext();
+    const {products, curency, cartItems, removeFromCart, getCartCount, updateCartItem, navigate, getCartAmount, axios, user, setCartItems } = useAppContext();
     const [cartArray, setCartArray] =useState([]);
+    const defaultAddress = { street: 'street 123', city: 'Dhaka', state: '', country: 'Bangladesh' };
     const [addresses, setAddresses] = useState([]);
     const [showAddress, setShowAddress] = useState(false);
     const [selectedAddress, setSelectedAddress] = useState(null);
-    const[paymentOption, setPaymentOption] = useState("COD");
+    const [paymentOption, setPaymentOption] = useState("COD");
 
     const getCart = ()=> {
         let tempArray =[];
@@ -25,10 +28,10 @@ const Cart = () => {
 
     const getUserAddress = async () => {
         try {
-            const {data} = await axios.get('/api/address/get');
-            if(data.success){
+            const { data } = await axios.get('/api/address/get');
+            if (data.success) {
                 setAddresses(data.addresses);
-                if(data.addresses.length > 0){
+                if (data.addresses.length > 0) {
                     setSelectedAddress(data.addresses[0]);
                 }
             } else {
@@ -39,30 +42,29 @@ const Cart = () => {
         }
     }
 
-
     const placeOrder = async () => {
-        try{
-            if(!selectedAddress){
-                return toast.error("Please select an address");
+        try {
+            if (!selectedAddress) {
+                return toast.error("Please select a delivery address.");
                 
             }
+            // Place order with COD
 
-            if(paymentOption === "COD"){
-                const {data} = await axios.post('/api/order/cod', {
-                    userId: user._id,
-                    items: cartArray.map(item => ({product: item._id, quantity: item.quantity})),
-                    address: selectedAddress._id,
-            })
-
+        if(paymentOption === "COD"){
+            const {data} = await axios.post('/api/order/cod', {
+                userId: user._id,
+                items: cartArray.map(item=> ({product: item._id, quantity: item.quantity})),
+                address: selectedAddress._id
+            });
             
             if(data.success){
-                toast.success(data.message)
-                setCartItems({})
+                toast.success("Order placed successfully");
+                setCartItems({});
                 navigate('/my-orders');
-            } else {
-                toast.error(data.message)
+            }else{
+                toast.error(data.message);
             }
-        } else {
+        }else {
             const {data} = await axios.post('/api/order/stripe', {
                 userId: user._id,
                 items: cartArray.map(item => ({product: item._id, quantity: item.quantity})),
@@ -78,10 +80,9 @@ const Cart = () => {
             }
                 
             }
-        
-        } catch (error) {
-            toast.error(error.message);
-        }
+    } catch (error) {
+        toast.error(error.message);
+    }
 
     }
 
@@ -95,10 +96,10 @@ const Cart = () => {
 
     useEffect(() => {
         if(user){
-        getUserAddress()
+            getUserAddress();
         }
-    }, [user])
 
+    },[user])
     return products.length > 0 && cartItems  ? (
         <div className="flex flex-col md:flex-row mt-16 gap-8">
             <div className='flex-1 max-w-4xl'>
@@ -122,7 +123,7 @@ const Cart = () => {
                                 navigate(`/products/${product.category.toLowerCase()}/${product._id}`);
                                 scrollTo(0, 0);
                             }} className="cursor-pointer w-24 h-24 flex items-center justify-center border border-gray-300 rounded overflow-hidden">
-                                <img className="max-w-full h-full object-cover" src={product.image[0]} alt={product.name} />
+                                <img className="max-w-full h-full object-cover" src={product.images?.[0] || assets.upload_area} alt={product.name} />
                             </div>
                             <div>
                                 <p className="hidden md:block font-semibold">{product.name}</p>

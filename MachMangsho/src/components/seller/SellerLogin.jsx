@@ -10,21 +10,23 @@ const SellerLogin = () => {
   const [error, setError] = useState("");
 
   const onSubmitHandler = async (event) => {
-    
     try {
       event.preventDefault();
-      const {data} = await axios.post('/api/seller/login', {email, password})
+      setError(""); // Clear previous errors
+      const {data} = await axios.post('/api/seller/login', {email,password})
       if(data.success){
-        setIsSeller(true)
-        navigate('/seller')
-      }
-      else{
-        toast.error(data.message)
+        setIsSeller(true);
+        toast.success("Login successful!");
+        navigate('/seller');
+      }else{
+        setError(data.message);
+        toast.error(data.message);
       }
     } catch (error) {
-
-      toast,eeror(error.message)
-      
+      console.error("Login error:", error);
+      const errorMessage = error.response?.data?.message || "An error occurred. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 

@@ -1,21 +1,16 @@
 import mongoose from "mongoose";
 
-const connectDB = async ()=>{
+const connectDB = async () => {
     try {
-        mongoose.connection.on('connected', ()=> console.log("Database Connected"));
-        mongoose.connection.on('error', (err)=> console.log("Database Error:", err));
-
-        await mongoose.connect(`${process.env.MONGODB_URI}/MachMangsho`, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-            heartbeatFrequencyMS: 2000, // Send a ping every 2 seconds
-        })
+        await mongoose.connect(`${process.env.MONGODB_URL}/machmangsho`);
+        console.log('MongoDB connected successfully');
+        mongoose.connection.on('connected', () => {
+            console.log('MongoDB reconnected');
+        });
     } catch (error) {
-        console.error("Database connection error:", error.message);
-        // Don't exit the process, let the server run without DB for now
-        console.log("Server will continue running without database connection...");
+        console.error('MongoDB connection error:', error);
     }
-}
+};
 
 export default connectDB;
+export { connectDB };

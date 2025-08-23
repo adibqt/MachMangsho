@@ -1,26 +1,26 @@
 import jwt from 'jsonwebtoken';
 
-const authSeller = async(req, resizeBy, next)=>{
-    const{sellerToken} = req.cookies;
+const authSeller = async (req, res, next) => {
+    // Prefer cookie token for browser flows. Avoid auto-picking Authorization header to prevent stale dev tokens.
+    const token = req.cookies?.sellerToken;
 
-    if(!sellerToken){
-        return resizeBy.json({success: false, message: "Not Authorized"});
+    if (!token) {
+        return res.status(401).json({ success: false, message: 'Not Authorized' });
     }
 
-    
-        try {
-            const tokenDecode = jwt.verify(sellerToken, process.env.JWT_SECRET)
-            if(tokenDecode.email === process.env.SELLER_EMAIL){
-               next();
-            }
-            else{
-                return res.json({success: false, message: 'Not Authorized'});
-            }
-            next();
-        } catch (error) {
-            console.log(error.message);
-            return res.json({success: false, message: error.message});
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoded?.id) {
+            return res.status(401).json({ success: false, message: 'Not Authorized' });
         }
-}
 
+        req.sellerId = decoded.id;
+        return next();
+    } catch (error) {
+        return res.status(401).json({ success: false, message: 'Not Authorized' });
+    }
+};
+
+// Export both named and default to avoid ESM import issues
+export { authSeller };
 export default authSeller;
