@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { assets } from '../assets/assets'
+import { useAppContext } from '../context/AppContext'
+import toast from 'react-hot-toast'
 
 // Input Field Component
 const InputField =({type, placeholder, name, handleChange, address})=>(
@@ -15,6 +17,7 @@ const InputField =({type, placeholder, name, handleChange, address})=>(
 )
 
 const AddAddress = () => {
+    const { axios, user, navigate } = useAppContext();
 
     const [address, setAddress] = useState({
         firstName: '',
@@ -42,8 +45,27 @@ const AddAddress = () => {
 
     const onSubmitHandler = async (e) => {
         e.preventDefault();
+        try {
+            const { data } = await axios.post('/api/address/add', { address });
+
+            if(data.success) {
+                toast.success(data.message);
+                navigate('/cart');
+            }else{
+                toast.error(data.message);
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
     }
 
+    useEffect(() => {
+        if(!user) {
+            navigate('/cart');
+        }
+
+
+    },[]);
   return (
     <div className='mt-16 pb-16'>
         <p className='text-2xl md:text-3xl text-gray-500'>Add Ship<span className="relative inline-block pb-1">ping
@@ -81,9 +103,9 @@ const AddAddress = () => {
                 </form>
 
             </div>
-            <img 
+        <img 
     className='md:mr-16 mb-16 md:mt-0 w-64 md:w-80 max-w-full h-auto object-contain' 
-    src={assets.add_address_iamge} 
+    src={assets.add_address_image} 
     alt="Add Address" 
 />
 
