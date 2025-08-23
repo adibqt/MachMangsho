@@ -99,6 +99,8 @@ export const assets = {
   bottom_banner_image,
   bottom_banner_image_sm,
   add_address_iamge,
+  // Backward-compat + correct spelling alias
+  add_address_image: add_address_iamge,
   box_icon,
 };
 
