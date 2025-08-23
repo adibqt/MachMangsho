@@ -4,11 +4,7 @@ import { dummyProducts } from "../assets/assets";
 import toast from "react-hot-toast";
 import axios from "axios";
 
-<<<<<<< HEAD
-axios.defaults.withCredentials = true;
-=======
 axios.defaults.withCredentials = true; // Enable sending cookies with requests
->>>>>>> adib
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 
 export const AppContext = React.createContext();
@@ -25,51 +21,6 @@ export const AppContextProvider = ({ children }) => {
     const [cartItems,setCartItems] = React.useState({});
     const [searchQuery,setSearchQuery] = React.useState({});
     
-<<<<<<< HEAD
-    // Fetch Seller Status
-    const fetchSeller = async ()=>{
-        try {
-            const{data} = await axios.get('/api/seller/is-auth');
-            if(data.success){
-                setIsSeller(true)
-            }
-            else{
-               setIsSeller(false) 
-            }
-        } catch (error) {
-            setIsSeller(false) 
-            
-        }
-    }
-
-
-    // Fetch User Auth Status, User Data and Cart Items
-
-    const fetchUser = async () => {
-        try {
-            const { data } = await axios.get('/api/user/is-auth');
-            if (data.success) {
-                setUser(data.user);
-                setCartItems(data.user.cartItems)
-            }
-        } catch (error) {
-            setUser(null)
-        }
-    }
-    
-    // Fetch All Products
-    const fetchProducts = async () => {
-        try {
-            const { data } = await axios.get('/api/product/list');
-            if (data.success) {
-                setProducts(data.products);
-            } else {
-                toast.error(data.message);
-            }
-        } catch (error) {
-            toast.error(error.message);
-        }
-=======
 // Fetech Seller
 
 const fetchSeller = async () => {
@@ -83,7 +34,6 @@ const fetchSeller = async () => {
         }
     } catch (error) {
         setIsSeller(false);
->>>>>>> adib
     }
 }
 
@@ -208,34 +158,6 @@ const fetchUser = async () => {
     }
 
      
-<<<<<<< HEAD
-    // Persist isSeller to localStorage whenever it changes
-  useEffect(() => {
-    fetchUser();
-    fetchSeller();
-    fetchProducts();
-  }, []);
-
-  useEffect(() => {
-    const updatedCartItems = async () => {
-      try {
-        const { data } = await axios.post('/api/user/update', { cartItems });
-        if (!data.success) {
-          toast.error(data.message);
-        }
-      } catch (error) {
-        toast.error(error.message)
-      }
-    }
-    if(user){
-        updatedCartItems();
-    }    
-
-  },[cartItems])
-
-  const value = {navigate, user, setUser, isSeller, setIsSeller, showUserLogin, setShowUserLogin,products,currency,addToCart,updateCartItem, 
-    removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios, setCartItems};
-=======
     // Initialize app data on mount
     useEffect(() => {
         const initializeApp = async () => {
@@ -281,7 +203,6 @@ const fetchUser = async () => {
 
     const value = {navigate, user, setUser, isSeller, setIsSeller, logoutSeller, showUserLogin, setShowUserLogin,products,currency,addToCart,updateCartItem, 
         removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios, setCartItems, refreshCartFromServer};
->>>>>>> adib
   return <AppContext.Provider value={value}>
     {children}
   </AppContext.Provider>;   
