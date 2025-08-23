@@ -12,6 +12,12 @@ import cartRouter from './routes/cartRoute.js';
 import addressRouter from './routes/addressRoute.js';
 import orderRouter from './routes/orderRoute.js';
 
+// Debug environment variables
+console.log('Environment variables loaded:');
+console.log('SELLER_EMAIL:', process.env.SELLER_EMAIL);
+console.log('SELLER_PASSWORD:', process.env.SELLER_PASSWORD);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
 const app = express();
 const port = process.env.PORT || 4000;
 
@@ -19,7 +25,7 @@ const port = process.env.PORT || 4000;
 await connectDB();
 await connectCloudinary();
 
-const allowedOrigins = ['http://localhost:5173'];
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174'];
 //Middleware 
 app.use(express.json());
 app.use(cookieParser());

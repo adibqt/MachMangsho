@@ -6,7 +6,8 @@ import { addProduct, productList, productById, changeStock} from '../controllers
 
 const productRouter = express.Router();
 
-productRouter.post('/add', upload.array("images"), authSeller, addProduct);
+// Authenticate before parsing and saving files
+productRouter.post('/add', authSeller, upload.array("images"), addProduct);
 productRouter.get('/list', productList);
 productRouter.get('/:id', productById);
 productRouter.put('/stock', authSeller, changeStock);

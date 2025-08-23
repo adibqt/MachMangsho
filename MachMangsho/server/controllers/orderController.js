@@ -42,45 +42,6 @@ export const placeOrderCOD = async (req,res)=>{
 
 
 //Place Order Stripe : /api/order/stripe
-export const placeOrderStripe = async (req, res) => {
-    try {
-        const{userId, items, address} = req.body;
-        const{origin} = req.headers;
-        if(!address || items.length === 0){
-            return res.json({success: false, message: "Invalid data"})
-        }
-
-        let productData = [];
-
-        // Calculate Amount Using Items
-        let amount = await items.reduce(async (acc, item) =>{
-            const product = await Product.findById(item.product);
-            productData.push({
-                name: product.name,
-                price: product.offerPrice,
-                quantity: item.quantity,
-            });
-            return (await acc) + product.offerPrice * item.quantity;
-
-        },0)
-
-        //Add Tax Charge(2%)
-        amount += Math.floor(amount * 0.02);
-
-        const order = await Order.create({
-            userId,
-            items,
-            amount,
-            address,
-            paymentType: "Online"
-        });
-         
-        // For now, just return success without Stripe integration
-        return res.json({success: true, message: "Order placed successfully", orderId: order._id})
-    } catch (error) {
-        return res.json({success: false, message: error.message});
-    }
-}
 
 
 // Get Orders by User ID : /api/order/user

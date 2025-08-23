@@ -1,11 +1,8 @@
 import jwt from 'jsonwebtoken';
 
 const authSeller = async (req, res, next) => {
-    // Read token from cookie or Authorization header: Bearer <token>
-    const cookieToken = req.cookies?.sellerToken;
-    const header = req.headers?.authorization || '';
-    const headerToken = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
-    const token = cookieToken || headerToken;
+    // Prefer cookie token for browser flows. Avoid auto-picking Authorization header to prevent stale dev tokens.
+    const token = req.cookies?.sellerToken;
 
     if (!token) {
         return res.status(401).json({ success: false, message: 'Not Authorized' });

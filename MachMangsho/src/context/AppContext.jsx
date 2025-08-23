@@ -2,6 +2,10 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { dummyProducts } from "../assets/assets";
 import toast from "react-hot-toast";
+import axios from "axios";
+
+axios.defaults.withCredentials = true; // Enable sending cookies with requests
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 
 export const AppContext = React.createContext();
 
@@ -10,16 +14,43 @@ export const AppContextProvider = ({ children }) => {
     const currency = "৳"; // You can change this to any currency symbol you want
     const navigate = useNavigate();
     const [user,setUser] = useState(null);
-    const [isSeller, setIsSeller] = useState(() => {
-    // Check localStorage for seller state on load
-    return localStorage.getItem("isSeller") === "true";
-  });
+    const [isSeller, setIsSeller] = useState(false);
     const [showUserLogin,setShowUserLogin] = useState(false);
     const [products,setProducts] = useState([]);
 
     const [cartItems,setCartItems] = React.useState({});
     const [searchQuery,setSearchQuery] = React.useState({});
     
+// Fetech Seller
+
+const fetchSeller = async () => {
+    try {
+        const {data} = await axios.get('/api/seller/is-auth');
+        if(data.success){
+            setIsSeller(true);
+            
+        }else{
+            setIsSeller(false);
+        }
+    } catch (error) {
+        setIsSeller(false);
+    }
+}
+
+// Logout Seller
+const logoutSeller = async () => {
+    try {
+        const { data } = await axios.post('/api/seller/logout');
+        setIsSeller(false);
+        if (data?.success) {
+            toast.success('Logged out successfully');
+        }
+    } catch (e) {
+        setIsSeller(false);
+    }
+};
+
+
     const fetchProducts = async () => {
         setProducts(dummyProducts)
     }
@@ -88,11 +119,12 @@ export const AppContextProvider = ({ children }) => {
      
     // Persist isSeller to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("isSeller", isSeller);
-  }, [isSeller]);
+    fetchSeller();
+    fetchProducts();
+  }, []);
 
-  const value = {navigate, user, setUser, isSeller, setIsSeller, showUserLogin, setShowUserLogin,products,currency,addToCart,updateCartItem, 
-    removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery, getCartAmount, getCartCount};
+    const value = {navigate, user, setUser, isSeller, setIsSeller, logoutSeller, showUserLogin, setShowUserLogin,products,currency,addToCart,updateCartItem, 
+        removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios};
   return <AppContext.Provider value={value}>
     {children}
   </AppContext.Provider>;   

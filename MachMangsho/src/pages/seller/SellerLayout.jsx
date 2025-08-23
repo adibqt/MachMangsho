@@ -4,7 +4,7 @@ import { useAppContext } from "../../context/AppContext";
 
 const SellerLayout = () => {
 
-    const{ setIsSeller } = useAppContext();
+    const { logoutSeller } = useAppContext();
 
     
 
@@ -17,8 +17,9 @@ const SellerLayout = () => {
     { name: "Orders", path: "/seller/orders", icon: assets.order_icon },
 ];
 
-    const logout = async ()=>{
-        setIsSeller(false);
+    const logout = async () => {
+        // Use context helper to clear cookie on the server and update state
+        await logoutSeller();
     }
 
     return (
