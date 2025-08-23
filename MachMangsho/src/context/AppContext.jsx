@@ -183,8 +183,25 @@ const fetchUser = async () => {
         }
     }, [user]);
 
+    // Refresh cart from server (useful after payments)
+    const refreshCartFromServer = async () => {
+        if (user?._id) {
+            try {
+                const { data } = await axios.get('/api/user/is-auth');
+                if (data.success && data.user.cartItems) {
+                    setCartItems(data.user.cartItems);
+                } else {
+                    setCartItems({});
+                }
+            } catch (error) {
+                console.error('Failed to refresh cart:', error);
+                setCartItems({});
+            }
+        }
+    };
+
     const value = {navigate, user, setUser, isSeller, setIsSeller, logoutSeller, showUserLogin, setShowUserLogin,products,currency,addToCart,updateCartItem, 
-        removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios, setCartItems};
+        removeFromCart, cartItems, fetchProducts, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios, setCartItems, refreshCartFromServer};
   return <AppContext.Provider value={value}>
     {children}
   </AppContext.Provider>;   

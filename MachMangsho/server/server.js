@@ -11,6 +11,7 @@ import productRouter from './routes/productRoute.js';
 import cartRouter from './routes/cartRoute.js';
 import addressRouter from './routes/addressRoute.js';
 import orderRouter from './routes/orderRoute.js';
+import { stripeWebhook } from './controllers/orderController.js';
 
 // Debug environment variables
 console.log('Environment variables loaded:');
@@ -26,6 +27,9 @@ await connectDB();
 await connectCloudinary();
 
 const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174'];
+
+// Stripe webhook must be before express.json and use raw body
+app.post('/api/order/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
 //Middleware 
 app.use(express.json());
 app.use(cookieParser());
