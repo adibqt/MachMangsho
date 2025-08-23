@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-
 const productSchema = new mongoose.Schema({
     name: {type: String, required: true},
     description: {type: Array, required: true, },
@@ -10,9 +9,10 @@ const productSchema = new mongoose.Schema({
     category: {type: Array, required: true},
     inStock: {type: Array, required: true},
     
-
 },{timestamps: true})
 const Product = mongoose.models.product || mongoose.model('product' , productSchema)
 
+// Export both named and default to avoid ESM import issues
+export { Product };
 export default Product;
 

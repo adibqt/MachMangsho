@@ -1,5 +1,7 @@
 import { v2 as cloudinary } from "cloudinary"
-import Product from "../models/productModel.js";
+import Product from "../models/product.js";
+
+
 // Add Product: /api/product/add
 export const addProduct = async (req, res) => {
     try {
@@ -25,9 +27,16 @@ export const addProduct = async (req, res) => {
     }
 }
 
+
 // Get Product: /api/product/list
 export const productList = async (req, res) => {
-
+    try {
+        const products = await Product.find({})
+        res.json({success: true, products})
+    } catch (error) {
+        console.log(error.message);
+        res.json({success: false, message: 'Server Error'})
+    }
 
 }
 
@@ -36,12 +45,27 @@ export const productList = async (req, res) => {
 
     export const productById = async (req, res) => {
 
+        try {
+            const{ id } = req.body
+            const product = await Product.findById(id)
+            res.json({success: true, product})
+        } catch (error) {
+            console.log(error.message);
+            res.json({success: false, message: 'Server Error'})
+        }
+
     }
 
 
-    // Change Product inStock : /api/product/stock
+// Change Product inStock : /api/product/stock
 
 
-    export const changeStock = async (req, res) => {
-
+export const changeStock = async (req, res) => {
+try {
+    const { id, inStock } = req.body
+    await Product.findByIdAndUpdate(id, { inStock })
+    res.json({success: true, message: 'Product stock updated successfully'})
+} catch (error) {
+    
+}
     }

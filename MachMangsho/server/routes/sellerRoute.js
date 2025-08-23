@@ -7,4 +7,6 @@ sellerRouter.post('/login', sellerLogin);
 sellerRouter.get('/is-auth',authSeller, isSellerAuth);
 sellerRouter.post('/logout', sellerLogout);
 
+// Export both named and default to avoid ESM import issues
+export { sellerRouter };
 export default sellerRouter;

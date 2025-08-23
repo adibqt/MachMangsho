@@ -9,5 +9,6 @@ userRouter.post('/login', login);
 userRouter.get('/is-auth', authUser, isAuth);
 userRouter.get('/logout', authUser, logout);
 
-
+// Export both named and default to avoid ESM import issues
+export { userRouter };
 export default userRouter;

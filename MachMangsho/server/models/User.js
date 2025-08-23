@@ -10,5 +10,7 @@ const userSchema = new mongoose.Schema({
 },{minimize: false})
 const User = mongoose.models.user || mongoose.model('user' , userSchema)
 
+// Export both named and default to avoid ESM import issues
+export { User };
 export default User;
 
