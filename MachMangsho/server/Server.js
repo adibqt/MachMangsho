@@ -26,14 +26,35 @@ const port = process.env.PORT || 4000;
 await connectDB();
 await connectCloudinary();
 
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174', 'https://mach-mangsho.vercel.app'];
+// Trust Vercel/Proxies so secure cookies and req.secure work correctly
+app.set('trust proxy', 1);
+
+// Allow localhost, production, and Vercel preview deployments
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'https://mach-mangsho.vercel.app'
+];
 
 // Stripe webhook must be before express.json and use raw body
 app.post('/api/order/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
 //Middleware 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({origin: allowedOrigins, credentials: true}));
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      // Allow non-browser requests or same-origin
+      if (!origin) return cb(null, true);
+      // Exact allowlist or any *.vercel.app preview
+      if (allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin)) {
+        return cb(null, true);
+      }
+      return cb(new Error('CORS not allowed for origin: ' + origin), false);
+    },
+    credentials: true
+  })
+);
 app.get('/', (req, res) => {
   res.send('API is running');
 });
