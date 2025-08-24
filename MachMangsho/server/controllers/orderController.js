@@ -54,10 +54,15 @@ export const placeOrderCOD = async (req,res)=>{
 export const placeOrderStripe = async (req, res) => {
 
     try {
-        const{userId, items, address} = req.body;
+        // Prefer authenticated user id from middleware; fallback to body for compatibility
+        const userId = req.userId || req.body?.userId;
+        const { items, address } = req.body;
         const{origin} = req.headers;
         if(!address || items.length === 0){
             return res.json({success: false, message: "Invalid data"})
+        }
+        if (!userId) {
+            return res.json({ success: false, message: "Not Authorized: userId missing" });
         }
 
         let productData = [];

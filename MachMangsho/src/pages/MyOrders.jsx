@@ -70,7 +70,7 @@ const MyOrders = () => {
                        <div className='font-medium'>
     <p className="text-black font-medium">Quantity: <span className="text-black font-medium">{item.quatity || "1"}</span></p>
     <p className="text-black font-medium">Status: <span className="text-black font-medium">{order.status}</span></p>
-    <p className="text-black font-medium">Date: <span className="text-black font-medium">{new Date(order.createdAt).toLocaleDateString()}</span></p>
+    <p className="text-black font-medium">Placed: <span className="text-black font-medium">{new Date(order.createdAt).toLocaleString(undefined, { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}</span></p>
 </div>
                        <p className='text-lg font-medium'>
     <span className="text-black">Amount:</span><span className="text-black"> {currency}{Number(item.product.offerPrice ?? item.product.price) * Number(item.quantity ?? item.quatity ?? 1)}</span>
