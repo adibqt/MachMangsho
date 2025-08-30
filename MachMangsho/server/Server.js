@@ -48,6 +48,15 @@ const allowedOrigins = [
 app.post('/api/order/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
 //Middleware 
 app.use(express.json());
+
+// Request logging middleware
+app.use((req, res, next) => {
+    console.log(`🌐 ${req.method} ${req.url} - ${new Date().toISOString()}`);
+    if (req.body && Object.keys(req.body).length > 0) {
+        console.log("📦 Request body:", req.body);
+    }
+    next();
+});
 app.use(cookieParser());
 app.use(
   cors({
