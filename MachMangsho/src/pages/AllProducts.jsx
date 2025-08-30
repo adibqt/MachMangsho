@@ -1,28 +1,42 @@
 import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useAppContext } from '../context/AppContext'
 import ProductCard from '../components/ProductCard'
 
 const AllProducts = () => {
     const {products, searchQuery} = useAppContext();
     const [filteredProducts, setFilteredProducts] = useState([]);
+    const [searchParams] = useSearchParams();
+    const isDeals = (searchParams.get('filter') || '').toLowerCase() === 'deals';
 
     useEffect(() => {
-        if(typeof searchQuery === 'string' && searchQuery.length > 0) {
-            setFilteredProducts(products.filter(
-                product => product.name.toLowerCase().includes(searchQuery.toLowerCase()) && product.inStock
-            ))
-        } else {
-            setFilteredProducts(products.filter(product => product.inStock));
+        let result = Array.isArray(products)
+            ? products.filter((p) => p && p.inStock)
+            : [];
+
+        if (isDeals) {
+            result = result.filter((p) => {
+                const price = Number(p.price);
+                const offer = Number(p.offerPrice);
+                return Number.isFinite(price) && Number.isFinite(offer) && offer < price;
+            });
         }
-    }, [products, searchQuery]);
+
+        if (typeof searchQuery === 'string' && searchQuery.trim().length > 0) {
+            const q = searchQuery.toLowerCase();
+            result = result.filter((p) => (p.name || '').toLowerCase().includes(q));
+        }
+
+        setFilteredProducts(result);
+    }, [products, searchQuery, isDeals]);
 
     return (
         <div className='mt-8 sm:mt-16 flex flex-col'>
             <div className='flex flex-col items-end w-max'>
                 <p className='text-lg sm:text-xl md:text-2xl font-medium uppercase'>
-                    ALL PRO
+                    {isDeals ? 'DE' : 'ALL PRO'}
                     <span className='relative'>
-                        DUCTS
+                        {isDeals ? 'ALS' : 'DUCTS'}
                         <span className='absolute bottom-0 left-0 w-full h-0.5 bg-red-500'></span>
                     </span>
                 </p>
