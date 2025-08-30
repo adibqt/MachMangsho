@@ -6,5 +6,8 @@
     "build": "cd MachMangsho && npm run build",
     "preview": "cd MachMangsho && npm run preview"
   },
-  "description": "Root package.json for MachMangsho project - redirects to React app"
+  "description": "Root package.json for MachMangsho project - redirects to React app",
+  "dependencies": {
+    "nodemailer": "^7.0.5"
+  }
 }

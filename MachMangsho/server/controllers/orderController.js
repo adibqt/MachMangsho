@@ -4,6 +4,7 @@ import Order from "../models/Order.js";
 import Product from "../models/product.js";
 import User from "../models/User.js";
 import Stripe from "stripe";
+import { sendOrderReceiptEmail } from "../utils/email.js";
 
 
 //Place Order COD : /api/order/cod
@@ -22,14 +23,11 @@ export const placeOrderCOD = async (req,res)=>{
 
         },0)
 
-        //Add Tax Charge(2%)
-        amount += Math.floor(amount * 0.02);
-        
         // Add delivery charge (same as frontend Cart.jsx and Stripe)
         const deliveryCharge = 40; // BDT 40
         amount += deliveryCharge;
 
-    await Order.create({
+    const newOrder = await Order.create({
             userId,
             items,
             amount,
@@ -39,6 +37,40 @@ export const placeOrderCOD = async (req,res)=>{
 
     // Clear cart after successful order placement
     try { await User.findByIdAndUpdate(userId, { cartItems: {} }); } catch {}
+
+        // Send order receipt email
+        try {
+            const user = await User.findById(userId);
+            if (user?.email) {
+                // Create a proper order object with the actual database order ID
+                const orderData = { 
+                    _id: newOrder._id.toString(), // Use the actual database order ID
+                    orderId: newOrder._id.toString(), // Use the actual database order ID
+                    items: await Promise.all(items.map(async (item) => {
+                        const product = await Product.findById(item.product);
+                        return {
+                            product: {
+                                name: product?.name || "Item",
+                                price: product?.price || 0,
+                                offerPrice: product?.offerPrice || product?.price || 0
+                            },
+                            quantity: item.quantity
+                        };
+                    })),
+                    amount, 
+                    totalAmount: amount, 
+                    currency: "BDT",
+                    paymentType: "COD"
+                };
+                await sendOrderReceiptEmail({
+                    to: user.email,
+                    order: orderData,
+                    user: user
+                });
+            }
+        } catch (emailError) {
+            console.error("Failed to send COD order receipt:", emailError.message);
+        }
 
         return res.json({success: true, messsage: "Order Placed Successfully"})
     } catch (error) {
@@ -79,9 +111,6 @@ export const placeOrderStripe = async (req, res) => {
 
         },0)
 
-        //Add Tax Charge(2%)
-        amount += Math.floor(amount * 0.02);
-        
         // Add delivery charge (same as frontend Cart.jsx)
         const deliveryCharge = 40; // BDT 40
         amount += deliveryCharge;
@@ -103,16 +132,16 @@ export const placeOrderStripe = async (req, res) => {
         
         //create line items for stripe
         const line_items = productData.map(item => {
-            const itemTotalWithTax = item.price * 1.02; // 2% tax
-            console.log(`Item: ${item.name}, Price: ${item.price}, With Tax: ${itemTotalWithTax}`); // Debug log
+            const itemPrice = item.price; // No tax
+            console.log(`Item: ${item.name}, Price: ${itemPrice}`); // Debug log
             
             let unit_amount;
             if (STRIPE_CURRENCY.toLowerCase() === "bdt") {
                 // For BDT, use the exact amount in paisa (100 paisa = 1 BDT)
-                unit_amount = Math.round(itemTotalWithTax * 100);
+                unit_amount = Math.round(itemPrice * 100);
             } else {
                 // For USD, convert BDT to USD (approximate rate: 110 BDT = 1 USD)
-                const usdAmount = itemTotalWithTax / 110;
+                const usdAmount = itemPrice / 110;
                 unit_amount = Math.round(usdAmount * 100); // Convert to cents
             }
             
@@ -197,6 +226,28 @@ export const stripeWebhook = async (request, response) => {
                 const { orderId, userId } = session.metadata || {};
                 if (orderId) {
                     await Order.findByIdAndUpdate(orderId, { isPaid: true });
+                    
+                    // Send order receipt email for paid Stripe orders
+                    try {
+                        const order = await Order.findById(orderId).populate('items.product');
+                        const user = await User.findById(userId);
+                        
+                        if (user?.email && order) {
+                            await sendOrderReceiptEmail({
+                                to: user.email,
+                                order: {
+                                    ...order.toObject(),
+                                    _id: order._id.toString(), // Use actual database order ID
+                                    orderId: order._id.toString(), // Use actual database order ID
+                                    totalAmount: order.amount,
+                                    currency: "BDT"
+                                },
+                                user: user
+                            });
+                        }
+                    } catch (emailError) {
+                        console.error("Failed to send Stripe order receipt:", emailError.message);
+                    }
                 }
                 if (userId) {
                     await User.findByIdAndUpdate(userId, { cartItems: {} });
@@ -231,6 +282,29 @@ export const verifyPayment = async (req, res) => {
             const { orderId, userId } = session.metadata || {};
             if (orderId) await Order.findByIdAndUpdate(orderId, { isPaid: true });
             if (userId) await User.findByIdAndUpdate(userId, { cartItems: {} });
+            
+            // Send order receipt email for manual verification
+            try {
+                const order = await Order.findById(orderId).populate('items.product');
+                const user = await User.findById(userId);
+                
+                if (user?.email && order) {
+                    await sendOrderReceiptEmail({
+                        to: user.email,
+                        order: {
+                            ...order.toObject(),
+                            _id: order._id.toString(), // Use actual database order ID
+                            orderId: order._id.toString(), // Use actual database order ID
+                            totalAmount: order.amount,
+                            currency: "BDT"
+                        },
+                        user: user
+                    });
+                }
+            } catch (emailError) {
+                console.error("Failed to send manual verification order receipt:", emailError.message);
+            }
+            
             return res.json({ success: true, orderId });
         }
 
