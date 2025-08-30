@@ -25,14 +25,14 @@ const SellerLayout = () => {
 
     return (
         <>
-            <div className="flex items-center justify-between px-2 md:px-4 border-b border-gray-300 py-1.5 bg-[#fbeaea]" style={{ minHeight: '48px' }}>
+            <div className="flex items-center justify-between px-3 md:px-6 border-b border-gray-300 py-2 bg-[#fbeaea]" style={{ minHeight: '44px' }}>
 
                 <Link to='/' >
-                    <img src= {assets.Mach} alt="logo" className="cursor-pointer w-34 md:w-38" />
+                    <img src= {assets.Mach} alt="logo" className="cursor-pointer w-24 md:w-28" />
                 </Link>
-                <div className="flex items-center gap-5 text-gray-500">
-                    <p style={{ color: '#c9595a' }}>Hi! Admin</p>
-                    <button onClick={logout} className='border rounded-full text-sm px-4 py-1' style={{ color: '#c9595a', borderColor: '#c9595a' }}
+                <div className="flex items-center gap-3 text-gray-500">
+                    <p className="text-sm font-medium" style={{ color: '#c9595a' }}>Hi! Admin</p>
+                    <button onClick={logout} className='border rounded-full text-xs px-3 py-1 font-medium transition-all duration-200' style={{ color: '#c9595a', borderColor: '#c9595a' }}
   onMouseEnter={e => e.target.style.backgroundColor = '#fbeaea'}
   onMouseLeave={e => e.target.style.backgroundColor = 'transparent'}
 >
