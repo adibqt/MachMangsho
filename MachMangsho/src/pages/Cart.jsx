@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 
 const Cart = () => {
-    const {products, curency, cartItems, removeFromCart, getCartCount, updateCartItem, navigate, getCartAmount, axios, user, setCartItems, setShowUserLogin } = useAppContext();
+    const {products, currency, cartItems, removeFromCart, getCartCount, updateCartItem, navigate, getCartAmount, axios, user, setCartItems, setShowUserLogin } = useAppContext();
     const [cartArray, setCartArray] =useState([]);
     const defaultAddress = { street: 'street 123', city: 'Dhaka', state: '', country: 'Bangladesh' };
     const [addresses, setAddresses] = useState([]);
@@ -107,6 +107,11 @@ const Cart = () => {
         }
 
     },[user])
+    const subtotal = getCartAmount();
+    const hasItems = getCartCount() > 0;
+    const deliveryCharge = hasItems ? 40 : 0;
+    const total = subtotal + deliveryCharge;
+
     return products.length > 0 && cartItems  ? (
         <div className="flex flex-col md:flex-row mt-16 gap-8">
             <div className='flex-1 max-w-4xl'>
@@ -148,7 +153,7 @@ const Cart = () => {
                                 </div>
                             </div>
                         </div>
-                        <p className="text-center">{curency}{product.offerPrice * product.quantity}</p>
+                        <p className="text-center">{currency}{product.offerPrice * product.quantity}</p>
                         <button onClick={()=> removeFromCart(product._id)} className="cursor-pointer mx-auto">
 
 
@@ -213,13 +218,17 @@ const Cart = () => {
 
                 <div className="text-gray-500 mt-4 space-y-2">
                     <p className="flex justify-between">
-                        <span>Price</span><span>{curency}{getCartAmount()}</span>
+                        <span>Price</span><span>{currency}{subtotal}</span>
                     </p>
-                    <p className="flex justify-between">
-                        <span style={{ color: '#c9595a' }}>Delivery Charge</span><span style={{ color: '#c9595a' }}>{curency}40</span>
-                    </p>
+                    {hasItems && (
+                        <p className="flex justify-between">
+                            <span style={{ color: '#c9595a' }}>Delivery Charge</span>
+                            <span style={{ color: '#c9595a' }}>{currency}{deliveryCharge}</span>
+                        </p>
+                    )}
                     <p className="flex justify-between text-lg font-medium mt-3">
-                        <span style={{ color: '#c9595a' }}>Total Amount:</span><span style={{ color: '#c9595a' }}>{curency}{getCartAmount() + 40}</span>
+                        <span style={{ color: '#c9595a' }}>Total Amount:</span>
+                        <span style={{ color: '#c9595a' }}>{currency}{total}</span>
                     </p>
                 </div>
 
