@@ -79,11 +79,29 @@ const ProductDetails = () => {
                         <p className="text-base ml-2">({4})</p>
                     </div>
 
-                    <div className="mt-4 sm:mt-6">
-                        <p className="text-gray-500/70 line-through text-sm sm:text-base">MRP:{currency} {product.price}</p>
-                        <p className="text-lg sm:text-xl md:text-2xl font-medium">MRP:{currency} {product.offerPrice}</p>
-                        <span className="text-gray-500/70 text-xs sm:text-sm">(inclusive of all taxes)</span>
-                    </div>
+                                        <div className="mt-4 sm:mt-6">
+                                                {(() => {
+                                                        const price = Number(product?.price ?? 0);
+                                                        const offer = Number(product?.offerPrice ?? price);
+                                                        const hasDiscount = typeof product?.discountPercent === 'number' ? product.discountPercent > 0 : offer < price;
+                                                        if (hasDiscount) {
+                                                                return (
+                                                                        <>
+                                                                            <p className="text-lg sm:text-xl md:text-2xl font-medium">MRP:{currency} {offer}
+                                                                                <span className="text-gray-500/70 text-sm line-through ml-2">{currency} {price}</span>
+                                                                            </p>
+                                                                            <span className="text-gray-500/70 text-xs sm:text-sm">(inclusive of all taxes)</span>
+                                                                        </>
+                                                                );
+                                                        }
+                                                        return (
+                                                                <>
+                                                                    <p className="text-lg sm:text-xl md:text-2xl font-medium">MRP:{currency} {price}</p>
+                                                                    <span className="text-gray-500/70 text-xs sm:text-sm">(inclusive of all taxes)</span>
+                                                                </>
+                                                        );
+                                                })()}
+                                        </div>
 
                     <p className="text-sm sm:text-base font-medium mt-4 sm:mt-6">About Product</p>
                     <ul className="list-disc ml-4 text-gray-500/70 text-sm sm:text-base">
