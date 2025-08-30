@@ -21,6 +21,43 @@ export const addProduct = async (req, res) => {
             return res.status(400).json({ success: false, message: `Missing fields: ${missing.join(', ')}` });
         }
 
+        // Sanitize and normalize numerics
+        const priceNum = Number(productData.price);
+        const inputOffer = productData.offerPrice;
+        const inputDiscount = productData.discountPercent;
+        const discountNum = inputDiscount === undefined || inputDiscount === null || inputDiscount === ''
+            ? undefined
+            : Number(inputDiscount);
+
+        if (!Number.isFinite(priceNum) || priceNum < 0) {
+            return res.status(400).json({ success: false, message: 'Invalid price' });
+        }
+
+        let normalizedDiscount;
+        if (discountNum !== undefined) {
+            if (!Number.isFinite(discountNum)) {
+                return res.status(400).json({ success: false, message: 'Invalid discount percent' });
+            }
+            normalizedDiscount = Math.max(0, Math.min(100, discountNum));
+        }
+
+        let offerNum;
+        if (normalizedDiscount !== undefined) {
+            offerNum = +(priceNum * (1 - normalizedDiscount / 100)).toFixed(2);
+        } else if (inputOffer !== undefined && inputOffer !== null && inputOffer !== '') {
+            offerNum = Number(inputOffer);
+            if (!Number.isFinite(offerNum) || offerNum < 0) {
+                return res.status(400).json({ success: false, message: 'Invalid offer price' });
+            }
+        } else {
+            // Default to price if no discount or offer provided
+            offerNum = priceNum;
+        }
+
+        if (offerNum > priceNum) {
+            return res.status(400).json({ success: false, message: 'Offer price cannot be greater than product price' });
+        }
+
         // Multer memory storage provides files with buffer
         const images = req.files || [];
         if (!Array.isArray(images) || images.length === 0) {
@@ -50,6 +87,9 @@ export const addProduct = async (req, res) => {
 
         const created = await Product.create({
             ...productData,
+            price: +priceNum.toFixed(2),
+            offerPrice: +offerNum.toFixed(2),
+            ...(normalizedDiscount !== undefined ? { discountPercent: +normalizedDiscount.toFixed(2) } : {}),
             images: imagesUrl,
         });
 
