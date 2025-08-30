@@ -19,6 +19,7 @@ import leaf_icon from "./leaf_icon.svg";
 import coin_icon from "./coin_icon.svg";
 import box_icon from "./box_icon.svg";
 import trust_icon from "./trust_icon.svg";
+import analytics_icon from "./analytics.png";
 import black_arrow_icon from "./black_arrow_icon.svg";
 import white_arrow_icon from "./white_arrow_icon.svg";
 import main_banner_bg from "./main_banner_bg.png";
@@ -92,6 +93,7 @@ export const assets = {
   leaf_icon,
   coin_icon,
   trust_icon,
+  analytics_icon,
   black_arrow_icon,
   white_arrow_icon,
   main_banner_bg,
