@@ -22,9 +22,7 @@ export const sellerLogin =  async (req, res) => {
             httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
             secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
             sameSite: process.env.NODE_ENV === 'production' ? 'Lax' : 'strict', // More secure for production
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-            path: '/',
-            ...(process.env.NODE_ENV === 'production' ? { domain: '.vercel.app' } : {})
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
         return res.status(200).json({ success: true, message: 'Login successful' });
@@ -73,11 +71,6 @@ export  const sellerLogout = async(req, res) => {
             sameSite: process.env.NODE_ENV === 'production' ? 'Lax' : 'strict',
             path: '/',
         });
-        if (process.env.NODE_ENV === 'production') {
-            res.clearCookie('sellerToken', { path: '/', domain: '.vercel.app' });
-            res.clearCookie('sellerToken', { path: '/', secure: true, sameSite: 'None' });
-            res.clearCookie('sellerToken', { path: '/', secure: true, sameSite: 'Lax' });
-        }
 
         return res.json({ success: true, message: "Logged out successfully" });
     } catch (error) {
