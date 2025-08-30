@@ -5,7 +5,8 @@ const sellerRouter = express.Router();
 
 sellerRouter.post('/login', sellerLogin);
 sellerRouter.get('/is-auth',authSeller, isSellerAuth);
-sellerRouter.post('/logout', authSeller, sellerLogout);
+// Allow logout without auth so stale/expired cookies can always be cleared
+sellerRouter.post('/logout', sellerLogout);
 
 // Export both named and default to avoid ESM import issues
 export { sellerRouter };

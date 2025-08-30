@@ -6,7 +6,10 @@ const userRouter = express.Router();
 userRouter.post('/register', register);
 userRouter.post('/login', login);
 userRouter.get('/is-auth', authUser, isAuth);
-userRouter.get('/logout', authUser, logout);
+// Allow logout without auth so stale/expired cookies can always be cleared
+userRouter.get('/logout', logout);
+// Optional: support POST logout as well for flexibility
+userRouter.post('/logout', logout);
 userRouter.post('/forgot-password', forgotPassword);
 userRouter.post('/reset-password', resetPassword);
 

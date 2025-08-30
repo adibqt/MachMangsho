@@ -26,6 +26,9 @@ export const sellerLogin =  async (req, res) => {
             path: '/',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
+    // Proactively clear any legacy path-scoped cookies
+    res.clearCookie('sellerToken', { path: '/api/seller', secure: process.env.NODE_ENV === 'production' });
+    res.clearCookie('sellerToken', { path: '/api', secure: process.env.NODE_ENV === 'production' });
 
         return res.status(200).json({ success: true, message: 'Login successful' });
     }else{
@@ -73,6 +76,10 @@ export  const sellerLogout = async(req, res) => {
             sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
             path: '/',
         });
+
+    // Also clear potential legacy path-scoped cookies
+    res.clearCookie('sellerToken', { path: '/api/seller', secure: process.env.NODE_ENV === 'production' });
+    res.clearCookie('sellerToken', { path: '/api', secure: process.env.NODE_ENV === 'production' });
 
         return res.json({ success: true, message: "Logged out successfully" });
     } catch (error) {
