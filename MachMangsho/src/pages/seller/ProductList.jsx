@@ -44,7 +44,12 @@ const ProductList = () => {
                                         </div>
                                         <span className="truncate max-sm:hidden w-full">{product.name}</span>
                                     </td>
-                                    <td className="px-4 py-3">{product.category}</td>
+                                    <td className="px-4 py-3">
+                                        {product.category}
+                                        {typeof product.discountPercent === 'number' && product.discountPercent > 0 && (
+                                            <span className="ml-2 text-green-600">-{product.discountPercent}%</span>
+                                        )}
+                                    </td>
                                     <td className="px-4 py-3 max-sm:hidden">{currency}{product.offerPrice}</td>
                                     <td className="px-4 py-3">
                                         <label className="relative inline-flex items-center cursor-pointer text-gray-900 gap-3">
