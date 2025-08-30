@@ -82,23 +82,29 @@ export const AppContextProvider = ({ children }) => {
 
     // ADD Products to cart
     const addToCart = (itemID) => {
-        let cartData = structuredClone(cartItems);
-        if(cartData[itemID]){
-            cartData[itemID] += 1;
-        }else{
-            cartData[itemID] = 1;
+        const current = Number(cartItems[itemID] || 0);
+        if (current >= 10) {
+            toast.error('Maximum 10 items can be added at once');
+            return;
         }
-
+        const cartData = structuredClone(cartItems);
+        cartData[itemID] = current + 1;
         setCartItems(cartData);
         toast.success("Item added to cart");
     }
 
     const updateCartItem = (itemID, quantity) => {
-        let cartData = structuredClone(cartItems);
-        cartData[itemID] = quantity;
+        const q = Math.floor(Number(quantity));
+        if (!Number.isFinite(q)) return; // ignore bad input
+        const next = Math.max(1, Math.min(10, q));
+        const cartData = structuredClone(cartItems);
+        cartData[itemID] = next;
         setCartItems(cartData);
-        toast.success("Cart updated successfully");
-    
+        if (q > 10) {
+            toast.error('Maximum 10 items can be added at once');
+        } else {
+            toast.success("Cart updated successfully");
+        }
     }
 
     // remove item from cart
