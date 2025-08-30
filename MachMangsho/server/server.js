@@ -12,6 +12,7 @@ import cartRouter from './routes/cartRoute.js';
 import addressRouter from './routes/addressRoute.js';
 import orderRouter from './routes/orderRoute.js';
 import { stripeWebhook } from './controllers/orderController.js';
+import { testEmailConnection } from './utils/email.js';
 
 // Debug environment variables
 console.log('Environment variables loaded:');
@@ -25,6 +26,9 @@ const port = process.env.PORT || 4000;
 
 await connectDB();
 await connectCloudinary();
+
+// Test email connection on startup
+testEmailConnection();
 
 // Trust Vercel/Proxies so secure cookies and req.secure work correctly
 app.set('trust proxy', 1);
