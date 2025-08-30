@@ -33,6 +33,8 @@ const userSchema = new mongoose.Schema({
         }
     },
     cartItems: {type: Object, default: {}},
+    resetPasswordToken: {type: String},
+    resetPasswordExpires: {type: Date},
 
 },{minimize: false})
 const User = mongoose.models.user || mongoose.model('user' , userSchema)

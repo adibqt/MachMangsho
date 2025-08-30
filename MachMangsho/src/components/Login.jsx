@@ -10,6 +10,7 @@ const Login = () => {
     const [password, setPassword] = React.useState("");
     const [nameError, setNameError] = React.useState("");
     const [passwordError, setPasswordError] = React.useState("");
+    const [isLoading, setIsLoading] = React.useState(false);
 
     // Validation functions
     const validateName = (name) => {
@@ -73,8 +74,43 @@ const Login = () => {
     const onSubmitHandler = async (event) => {
         try {
             event.preventDefault();
+            setIsLoading(true);
             
-            // Client-side validation for registration
+            // Handle forgot password
+            if (state === "forgot") {
+                if (!email) {
+                    toast.error("Please enter your email address");
+                    return;
+                }
+                
+                console.log("=== FRONTEND: Starting forgot password request ===");
+                console.log("Email:", email);
+                console.log("Backend URL:", import.meta.env.VITE_BACKEND_URL);
+                console.log("Axios baseURL:", axios.defaults.baseURL);
+                
+                try {
+                    console.log("Making axios request to:", '/api/user/forgot-password');
+                    const { data } = await axios.post('/api/user/forgot-password', { email });
+                    console.log("Response received:", data);
+                    
+                    if (data.success) {
+                        toast.success(data.message);
+                        setState("login"); // Switch back to login form
+                        setEmail(""); // Clear email field
+                    } else {
+                        toast.error(data.message);
+                    }
+                } catch (axiosError) {
+                    console.error("=== FRONTEND: Axios request failed ===");
+                    console.error("Full error:", axiosError);
+                    console.error("Error message:", axiosError.message);
+                    console.error("Error code:", axiosError.code);
+                    console.error("Request config:", axiosError.config);
+                    console.error("Response:", axiosError.response);
+                    throw axiosError; // Re-throw to be caught by outer try-catch
+                }
+                return;
+            }            // Client-side validation for registration
             if (state === "register") {
                 const nameValidation = validateName(name);
                 const passwordValidation = validatePassword(password);
@@ -107,6 +143,10 @@ const Login = () => {
                 toast.error(data.message || 'Request failed');
             }
         } catch (error) {
+            console.error('Request error:', error);
+            console.error('Error response:', error.response);
+            console.error('Error message:', error.message);
+
             const resp = error?.response;
             const serverData = resp?.data;
             const validationMsg = Array.isArray(serverData?.errors) ? serverData.errors[0]?.msg : undefined;
@@ -120,15 +160,29 @@ const Login = () => {
             }
 
             toast.error(message);
+        } finally {
+            setIsLoading(false);
         }
-    }; // Added missing closing brace and semicolon
+    }
 
     return (
     <div onClick={() => setShowUserLogin(false)} className='fixed top-0 bottom-0 left-0 right-0 z-30 flex items-center text-sm text-gray-600 bg-black/50'>
         <form onSubmit={onSubmitHandler} onClick={(e) => e.stopPropagation()} className="flex flex-col gap-4 m-auto items-start p-8 py-12 w-80 sm:w-[352px] rounded-lg shadow-xl border border-gray-200 bg-white">
             <p className="text-2xl font-medium m-auto">
-                <span className="text-[#FF6B6C]">User</span> {state === "login" ? "Login" : "Sign Up"}
+                <span className="text-[#FF6B6C]">User</span> {
+                    state === "login" ? "Login" : 
+                    state === "register" ? "Sign Up" : 
+                    "Reset Password"
+                }
             </p>
+            {state === "forgot" && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 w-full">
+                    <p className="text-sm text-blue-800">
+                        <span className="font-medium">📧 Password Reset</span><br />
+                        Enter your email address and we'll send you a link to reset your password.
+                    </p>
+                </div>
+            )}
             {state === "register" && (
                 <div className="w-full">
                     <p>Name</p>
@@ -145,22 +199,23 @@ const Login = () => {
             )}
             <div className="w-full ">
                 <p>Email</p>
-                <input onChange={(e) => setEmail(e.target.value)} value={email} placeholder="type here" className="border border-gray-200 rounded w-full p-2 mt-1 outline-[#FF6B6C]" type="email" required />
+                <input onChange={(e) => setEmail(e.target.value)} value={email} placeholder="Enter your email" className="border border-gray-200 rounded w-full p-2 mt-1 outline-[#FF6B6C]" type="email" required />
             </div>
-            <div className="w-full ">
-                <p>Password</p>
-                <input 
-                    onChange={handlePasswordChange} 
-                    value={password} 
-                    placeholder="Enter your password" 
-                    className={`border ${passwordError ? 'border-red-500' : 'border-gray-200'} rounded w-full p-2 mt-1 outline-[#FF6B6C]`} 
-                    type="password" 
-                    required 
-                />
-                {passwordError && <p className="text-red-500 text-xs mt-1">{passwordError}</p>}
-                {state === "register" && (
-                    <div className="text-xs text-gray-500 mt-1">
-                        <p>Password must contain:</p>
+            {state !== "forgot" && (
+                <div className="w-full ">
+                    <p>Password</p>
+                    <input 
+                        onChange={handlePasswordChange} 
+                        value={password} 
+                        placeholder="Enter your password" 
+                        className={`border ${passwordError ? 'border-red-500' : 'border-gray-200'} rounded w-full p-2 mt-1 outline-[#FF6B6C]`} 
+                        type="password" 
+                        required 
+                    />
+                    {passwordError && <p className="text-red-500 text-xs mt-1">{passwordError}</p>}
+                    {state === "register" && (
+                        <div className="text-xs text-gray-500 mt-1">
+                            <p>Password must contain:</p>
                         <ul className="list-disc list-inside ml-2">
                             <li className={password.length >= 8 ? 'text-green-600' : 'text-gray-500'}>At least 8 characters</li>
                             <li className={/[A-Z]/.test(password) ? 'text-green-600' : 'text-gray-500'}>One uppercase letter</li>
@@ -170,18 +225,34 @@ const Login = () => {
                         </ul>
                     </div>
                 )}
-            </div>
+                </div>
+            )}
             {state === "register" ? (
                 <p>
                     Already have account? <span onClick={() => setState("login")} className="text-[#FF6B6C] cursor-pointer">click here</span>
                 </p>
+            ) : state === "login" ? (
+                <div className="w-full">
+                    <p>
+                        Create an account? <span onClick={() => setState("register")} className="text-[#FF6B6C] cursor-pointer">click here</span>
+                    </p>
+                    <p>
+                        Forgot your password? <span onClick={() => setState("forgot")} className="text-[#FF6B6C] cursor-pointer">click here</span>
+                    </p>
+                </div>
             ) : (
                 <p>
-                    Create an account? <span onClick={() => setState("register")} className="text-[#FF6B6C] cursor-pointer">click here</span>
+                    Back to login? <span onClick={() => setState("login")} className="text-[#FF6B6C] cursor-pointer">click here</span>
                 </p>
             )}
-            <button className="bg-[#FF6B6C] hover:bg-[#FF8788] transition-all text-white w-full py-2 rounded-md cursor-pointer">
-                {state === "register" ? "Create Account" : "Login"}
+            <button 
+                className="bg-[#FF6B6C] hover:bg-[#FF8788] transition-all text-white w-full py-2 rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" 
+                disabled={isLoading}
+            >
+                {isLoading ? "Processing..." : 
+                 state === "register" ? "Create Account" : 
+                 state === "forgot" ? "Send Reset Link" : 
+                 "Login"}
             </button>
         </form>
     </div>
