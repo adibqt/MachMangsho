@@ -21,7 +21,7 @@ export const sellerLogin =  async (req, res) => {
         res.cookie('sellerToken', token, {
             httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
             secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-            sameSite:  process.env.NODE_ENV === 'production' ? 'None' : 'strict', //CSRF protection
+            sameSite: process.env.NODE_ENV === 'production' ? 'Lax' : 'strict', // More secure for production
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
@@ -58,7 +58,7 @@ export  const sellerLogout = async(req, res) => {
         res.cookie('sellerToken', '', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'strict',
+            sameSite: process.env.NODE_ENV === 'production' ? 'Lax' : 'strict',
             path: '/',
             maxAge: 0,
             expires: new Date(0),
@@ -68,7 +68,7 @@ export  const sellerLogout = async(req, res) => {
         res.clearCookie('sellerToken', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'strict',
+            sameSite: process.env.NODE_ENV === 'production' ? 'Lax' : 'strict',
             path: '/',
         });
 
