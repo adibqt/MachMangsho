@@ -39,10 +39,20 @@ const ProductCard = ({product}) => {
                 {/* Price and Cart */}
                 <div className="flex items-end justify-between mt-2 sm:mt-3">
                     <p className="text-sm sm:text-base md:text-xl font-medium" style={{color: '#c9595a'}}>
-                        {currency}{product.offerPrice} 
-                        <span className="text-gray-500/60 text-xs sm:text-sm line-through ml-1 sm:ml-2">
-                            {currency}{product.price}
-                        </span>
+                        {(() => {
+                            const price = Number(product?.price ?? 0);
+                            const offer = Number(product?.offerPrice ?? price);
+                            const hasDiscount = typeof product?.discountPercent === 'number' ? product.discountPercent > 0 : offer < price;
+                            if (hasDiscount) {
+                                return (
+                                    <>
+                                      {currency}{offer}
+                                      <span className="text-gray-500/60 text-xs sm:text-sm line-through ml-1 sm:ml-2">{currency}{price}</span>
+                                    </>
+                                );
+                            }
+                            return <span>{currency}{price}</span>;
+                        })()}
                     </p>
                     
                     <div onClick={(e) => {e.stopPropagation();}} style={{color: '#c9595a'}}>
