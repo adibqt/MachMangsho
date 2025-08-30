@@ -8,7 +8,11 @@ const Loading = () => {
     const { navigate, setCartItems } = useAppContext();
     const { search } = useLocation();
     const query = new URLSearchParams(search);
-    const nextUrl = query.get('next') || '/my-orders';
+    // Normalize next path; allow either 'my-orders' or '/my-orders'
+    const rawNext = query.get('next') || '/my-orders';
+    const nextUrl = /^https?:\/\//i.test(rawNext)
+        ? rawNext
+        : (rawNext.startsWith('/') ? rawNext : `/${rawNext}`);
     const sessionId = query.get('session_id');
 
     // stages: 'processing' | 'success' | 'redirect'
