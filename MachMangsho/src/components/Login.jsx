@@ -8,10 +8,90 @@ const Login = () => {
     const [name, setName] = React.useState("");
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
+    const [nameError, setNameError] = React.useState("");
+    const [passwordError, setPasswordError] = React.useState("");
+
+    // Validation functions
+    const validateName = (name) => {
+        const nameRegex = /^[a-zA-Z\s]+$/;
+        if (!name.trim()) {
+            return "Name is required";
+        }
+        if (name.trim().length < 2) {
+            return "Name must be at least 2 characters long";
+        }
+        if (!nameRegex.test(name.trim())) {
+            return "Name can only contain letters and spaces";
+        }
+        return "";
+    };
+
+    const validatePassword = (password) => {
+        const minLength = 8;
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasNumbers = /\d/.test(password);
+        const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+        if (!password) {
+            return "Password is required";
+        }
+        if (password.length < minLength) {
+            return `Password must be at least ${minLength} characters long`;
+        }
+        if (!hasUpperCase) {
+            return "Password must contain at least one uppercase letter";
+        }
+        if (!hasLowerCase) {
+            return "Password must contain at least one lowercase letter";
+        }
+        if (!hasNumbers) {
+            return "Password must contain at least one number";
+        }
+        if (!hasSpecialChar) {
+            return "Password must contain at least one special character";
+        }
+        return "";
+    };
+
+    const handleNameChange = (e) => {
+        const value = e.target.value;
+        setName(value);
+        if (state === "register") {
+            setNameError(validateName(value));
+        }
+    };
+
+    const handlePasswordChange = (e) => {
+        const value = e.target.value;
+        setPassword(value);
+        if (state === "register") {
+            setPasswordError(validatePassword(value));
+        }
+    };
 
     const onSubmitHandler = async (event) => {
         try {
             event.preventDefault();
+            
+            // Client-side validation for registration
+            if (state === "register") {
+                const nameValidation = validateName(name);
+                const passwordValidation = validatePassword(password);
+                
+                if (nameValidation) {
+                    setNameError(nameValidation);
+                    toast.error(nameValidation);
+                    return;
+                }
+                
+                if (passwordValidation) {
+                    setPasswordError(passwordValidation);
+                    toast.error(passwordValidation);
+                    return;
+                }
+            }
+
             const { data } = await axios.post(`/api/user/${state}`, {
                 name,
                 email,
@@ -52,7 +132,15 @@ const Login = () => {
             {state === "register" && (
                 <div className="w-full">
                     <p>Name</p>
-                    <input onChange={(e) => setName(e.target.value)} value={name} placeholder="type here" className="border border-gray-200 rounded w-full p-2 mt-1 outline-[#FF6B6C]" type="text" required />
+                    <input 
+                        onChange={handleNameChange} 
+                        value={name} 
+                        placeholder="Enter your full name" 
+                        className={`border ${nameError ? 'border-red-500' : 'border-gray-200'} rounded w-full p-2 mt-1 outline-[#FF6B6C]`} 
+                        type="text" 
+                        required 
+                    />
+                    {nameError && <p className="text-red-500 text-xs mt-1">{nameError}</p>}
                 </div>
             )}
             <div className="w-full ">
@@ -61,7 +149,27 @@ const Login = () => {
             </div>
             <div className="w-full ">
                 <p>Password</p>
-                <input onChange={(e) => setPassword(e.target.value)} value={password} placeholder="type here" className="border border-gray-200 rounded w-full p-2 mt-1 outline-[#FF6B6C]" type="password" required />
+                <input 
+                    onChange={handlePasswordChange} 
+                    value={password} 
+                    placeholder="Enter your password" 
+                    className={`border ${passwordError ? 'border-red-500' : 'border-gray-200'} rounded w-full p-2 mt-1 outline-[#FF6B6C]`} 
+                    type="password" 
+                    required 
+                />
+                {passwordError && <p className="text-red-500 text-xs mt-1">{passwordError}</p>}
+                {state === "register" && (
+                    <div className="text-xs text-gray-500 mt-1">
+                        <p>Password must contain:</p>
+                        <ul className="list-disc list-inside ml-2">
+                            <li className={password.length >= 8 ? 'text-green-600' : 'text-gray-500'}>At least 8 characters</li>
+                            <li className={/[A-Z]/.test(password) ? 'text-green-600' : 'text-gray-500'}>One uppercase letter</li>
+                            <li className={/[a-z]/.test(password) ? 'text-green-600' : 'text-gray-500'}>One lowercase letter</li>
+                            <li className={/\d/.test(password) ? 'text-green-600' : 'text-gray-500'}>One number</li>
+                            <li className={/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) ? 'text-green-600' : 'text-gray-500'}>One special character</li>
+                        </ul>
+                    </div>
+                )}
             </div>
             {state === "register" ? (
                 <p>

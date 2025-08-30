@@ -7,9 +7,44 @@ export const register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
-
+        // Basic field validation
         if(!name || !email || !password) {
             return res.status(400).json({ message: "All fields are required" });
+        }
+
+        // Name validation
+        const nameRegex = /^[a-zA-Z\s]+$/;
+        if (!name.trim()) {
+            return res.status(400).json({ message: "Name is required" });
+        }
+        if (name.trim().length < 2) {
+            return res.status(400).json({ message: "Name must be at least 2 characters long" });
+        }
+        if (!nameRegex.test(name.trim())) {
+            return res.status(400).json({ message: "Name can only contain letters and spaces" });
+        }
+
+        // Password validation
+        const minLength = 8;
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasNumbers = /\d/.test(password);
+        const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+        if (password.length < minLength) {
+            return res.status(400).json({ message: `Password must be at least ${minLength} characters long` });
+        }
+        if (!hasUpperCase) {
+            return res.status(400).json({ message: "Password must contain at least one uppercase letter" });
+        }
+        if (!hasLowerCase) {
+            return res.status(400).json({ message: "Password must contain at least one lowercase letter" });
+        }
+        if (!hasNumbers) {
+            return res.status(400).json({ message: "Password must contain at least one number" });
+        }
+        if (!hasSpecialChar) {
+            return res.status(400).json({ message: "Password must contain at least one special character" });
         }
 
         const existingUser = await User.findOne({ email });
@@ -20,7 +55,7 @@ export const register = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await User.create({
-            name,
+            name: name.trim(),
             email,
             password: hashedPassword
         });
