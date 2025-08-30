@@ -2,12 +2,12 @@ import jwt from 'jsonwebtoken';
 
 
 const authUser = async (req, res, next) => {
-    // Prefer cookie token
-    let token = req.cookies && req.cookies.token ? req.cookies.token : undefined;
+    // Prefer hardened __Host- cookie in production, fallback to legacy name
+    let token = req.cookies?.['__Host-token'] || req.cookies?.token;
 
     // Fallback to Authorization header: Bearer <token>
     if (!token) {
-        const authHeader = req.headers && req.headers.authorization;
+    const authHeader = req.headers && req.headers.authorization;
         if (authHeader && authHeader.startsWith('Bearer ')) {
             token = authHeader.substring(7);
         }
