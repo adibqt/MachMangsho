@@ -72,6 +72,9 @@ export const register = async (req, res) => {
             path: '/',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
+    // Proactively clear any legacy path-scoped cookies that may linger from older deployments
+    res.clearCookie('token', { path: '/api/user', secure: process.env.NODE_ENV === 'production' });
+    res.clearCookie('token', { path: '/api', secure: process.env.NODE_ENV === 'production' });
 
         return res.json({success: true, user: { email: user.email, name: user.name } });
     } catch (error) {
@@ -110,6 +113,9 @@ export const login = async (req, res) => {
             path: '/',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
+    // Proactively clear any legacy path-scoped cookies that may linger from older deployments
+    res.clearCookie('token', { path: '/api/user', secure: process.env.NODE_ENV === 'production' });
+    res.clearCookie('token', { path: '/api', secure: process.env.NODE_ENV === 'production' });
 
     return res.json({ success: true, token, user: { email: user.email, name: user.name } });
     } catch (error) {
@@ -151,13 +157,17 @@ export  const logout = async(req, res) => {
             expires: new Date(0)
         });
 
-        // Clear cookie with matching attributes
+    // Clear cookie with matching attributes
         res.clearCookie('token', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
             path: '/'
         });
+
+    // Also clear potential legacy path-scoped cookies from older versions
+    res.clearCookie('token', { path: '/api/user', secure: process.env.NODE_ENV === 'production' });
+    res.clearCookie('token', { path: '/api', secure: process.env.NODE_ENV === 'production' });
 
         return res.json({ success: true, message: "Logged out successfully" });
     } catch (error) {
