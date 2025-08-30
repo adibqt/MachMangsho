@@ -32,7 +32,7 @@ export async function sendOrderReceiptEmail({ to, order, user }) {
     
     // Logo URL - use JPG/PNG for better email client support
     // SVG is not well supported in email clients (Gmail, Outlook, etc.)
-    const logoUrl = "https://mach-mangsho.vercel.app/logo3.jpg"; // JPG works better in emails
+    const logoUrl = "https://mach-mangsho.vercel.app/logo3.png"; // JPG works better in emails
     // Fallback if domain not ready: branded placeholder
     const logoFallback = "https://via.placeholder.com/200x60/c9595a/ffffff?text=MachMangsho";
     
