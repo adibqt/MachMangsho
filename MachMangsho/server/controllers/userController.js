@@ -68,6 +68,7 @@ export const register = async (req, res) => {
             httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
             secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
             sameSite: process.env.NODE_ENV === 'production' ? 'Lax' : 'strict', // More secure for production
+            path: '/',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
@@ -104,6 +105,7 @@ export const login = async (req, res) => {
             httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
             secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
             sameSite: process.env.NODE_ENV === 'production' ? 'Lax' : 'strict', // More secure for production
+            path: '/',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
@@ -137,26 +139,23 @@ export const isAuth = async (req, res) => {
 
 export  const logout = async(req, res) => {
     try {
-        const isProd = process.env.NODE_ENV === 'production';
-
-        // Overwrite cookie with immediate expiration (common browsers require this)
+        // Overwrite cookie to expire immediately
         res.cookie('token', '', {
             httpOnly: true,
-            secure: isProd,
-            sameSite: isProd ? 'Lax' : 'strict',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'Lax' : 'strict',
             path: '/',
             maxAge: 0,
-            expires: new Date(0),
+            expires: new Date(0)
         });
 
-        // Clear common variants to ensure removal no matter how it was originally set
-        res.clearCookie('token', { path: '/' });
-        if (isProd) {
-            // If previously set with a domain or different samesite, clear those too
-            res.clearCookie('token', { path: '/', domain: '.vercel.app' });
-            res.clearCookie('token', { path: '/', secure: true, sameSite: 'None' });
-            res.clearCookie('token', { path: '/', secure: true, sameSite: 'Lax' });
-        }
+        // Clear cookie with matching attributes
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'Lax' : 'strict',
+            path: '/'
+        });
 
         return res.json({ success: true, message: "Logged out successfully" });
     } catch (error) {
