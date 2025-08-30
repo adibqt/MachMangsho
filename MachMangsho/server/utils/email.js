@@ -113,7 +113,7 @@ export async function sendOrderReceiptEmail({ to, order, user }) {
               <tr>
                 <td style="background: linear-gradient(135deg, #c9595a 0%, #b14a4b 100%); padding: 40px 30px; text-align: center;">
                   <!-- Logo - JPG/PNG works better in emails than SVG -->
-                  <img src="${logoUrl}" alt="MachMangsho Logo" style="height: 60px; width: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;" onerror="this.src='${logoFallback}'" />
+                  <img src="${logoUrl}" alt="MachMangsho Logo" style="height: 150px; width: auto; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;" onerror="this.src='${logoFallback}'" />
                   
                   <!-- Brand Name -->
                   <h1 style="margin: 0; color: white; font-size: 32px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
