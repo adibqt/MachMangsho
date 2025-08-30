@@ -84,6 +84,10 @@ const Navbar = () => {
                         onClick={() => setUserMenuOpen(!userMenuOpen)}
                     />
                     <ul className={`${userMenuOpen ? 'block' : 'hidden'} absolute top-12 right-0 bg-white shadow-lg border border-gray-200 py-2.5 w-36 rounded-md text-sm z-50`}>
+                        {/* User name header */}
+                        <li className='px-3 pb-2 text-gray-700 font-medium border-b border-gray-100 truncate'>
+                            {user?.name || 'User'}
+                        </li>
                         <li onClick={()=> {navigate("my-orders"); setUserMenuOpen(false);}} className='p-2 pl-3 hover:bg-primary/10 cursor-pointer border-b border-gray-100'>My Orders</li>
                         <li onClick={() => {logout(); setUserMenuOpen(false);}} className='p-2 pl-3 hover:bg-primary/10 cursor-pointer'>Logout</li>
                     </ul>
