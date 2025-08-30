@@ -137,11 +137,26 @@ export const isAuth = async (req, res) => {
 
 export  const logout = async(req, res) => {
     try {
-        res.clearCookie('token', {
+        const isProd = process.env.NODE_ENV === 'production';
+
+        // Overwrite cookie with immediate expiration (common browsers require this)
+        res.cookie('token', '', {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'Lax' : 'strict'
+            secure: isProd,
+            sameSite: isProd ? 'Lax' : 'strict',
+            path: '/',
+            maxAge: 0,
+            expires: new Date(0),
         });
+
+        // Clear common variants to ensure removal no matter how it was originally set
+        res.clearCookie('token', { path: '/' });
+        if (isProd) {
+            // If previously set with a domain or different samesite, clear those too
+            res.clearCookie('token', { path: '/', domain: '.vercel.app' });
+            res.clearCookie('token', { path: '/', secure: true, sameSite: 'None' });
+            res.clearCookie('token', { path: '/', secure: true, sameSite: 'Lax' });
+        }
 
         return res.json({ success: true, message: "Logged out successfully" });
     } catch (error) {
