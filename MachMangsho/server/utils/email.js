@@ -11,6 +11,27 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Test email connection and log configuration
+export const testEmailConnection = async () => {
+  try {
+    console.log("Testing email configuration...");
+    console.log("EMAIL_FROM:", process.env.EMAIL_FROM ? "SET" : "MISSING");
+    console.log("EMAIL_APP_PASSWORD:", process.env.EMAIL_APP_PASSWORD ? "SET" : "MISSING");
+    
+    if (!process.env.EMAIL_FROM || !process.env.EMAIL_APP_PASSWORD) {
+      console.error("❌ Email configuration incomplete - missing EMAIL_FROM or EMAIL_APP_PASSWORD");
+      return false;
+    }
+    
+    await transporter.verify();
+    console.log("✅ Email server connection verified successfully");
+    return true;
+  } catch (error) {
+    console.error("❌ Email server connection failed:", error.message);
+    return false;
+  }
+};
+
 export async function sendOrderReceiptEmail({ to, order, user }) {
   if (!to) {
     console.log("No email address provided for order receipt");
@@ -356,28 +377,27 @@ This is an automated receipt. Please keep it for your records.
   }
 }
 
-// Test email function (optional)
-export async function testEmailConnection() {
-  try {
-    await transporter.verify();
-    console.log("Email server connection verified successfully");
-    return true;
-  } catch (error) {
-    console.error("Email server connection failed:", error.message);
-    return false;
-  }
-}
-
 // Send password reset email
 export async function sendPasswordResetEmail({ to, resetToken, userName }) {
   console.log("=== EMAIL FUNCTION START ===");
   console.log("Email to:", to);
   console.log("Reset token:", resetToken ? "PROVIDED" : "MISSING");
   console.log("User name:", userName);
+  console.log("Environment check:");
+  console.log("- NODE_ENV:", process.env.NODE_ENV);
+  console.log("- VERCEL:", process.env.VERCEL ? "true" : "false");
+  console.log("- EMAIL_FROM:", process.env.EMAIL_FROM ? "SET" : "MISSING");
+  console.log("- EMAIL_APP_PASSWORD:", process.env.EMAIL_APP_PASSWORD ? "SET" : "MISSING");
+  console.log("- FRONTEND_URL:", process.env.FRONTEND_URL || "NOT SET");
   
   if (!to) {
     console.log("No email address provided for password reset");
     return;
+  }
+
+  if (!process.env.EMAIL_FROM || !process.env.EMAIL_APP_PASSWORD) {
+    console.error("❌ Email credentials missing - cannot send email");
+    throw new Error("Email configuration missing: EMAIL_FROM and EMAIL_APP_PASSWORD must be set");
   }
 
   try {
@@ -386,12 +406,16 @@ export async function sendPasswordResetEmail({ to, resetToken, userName }) {
     if (process.env.FRONTEND_URL) {
       // Explicitly set frontend URL (production)
       frontendUrl = process.env.FRONTEND_URL;
+      console.log("Using FRONTEND_URL:", frontendUrl);
     } else if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
-      // If in production/Vercel but no FRONTEND_URL set, throw an error
-      throw new Error('FRONTEND_URL environment variable must be set in production. Please set it to your Vercel frontend URL (e.g., https://your-app-name.vercel.app)');
+      // In production but no FRONTEND_URL set - use a sensible default
+      frontendUrl = 'https://mach-mangsho.vercel.app';
+      console.log("⚠️  FRONTEND_URL not set in production, using default:", frontendUrl);
+      console.log("⚠️  For best results, set FRONTEND_URL environment variable in Vercel");
     } else {
       // Development environment
-      frontendUrl = 'http://localhost:5173'; // Updated to match current dev server
+      frontendUrl = 'http://localhost:3000'; // Updated to match current dev server
+      console.log("Using development URL:", frontendUrl);
     }
     
     const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
