@@ -16,8 +16,27 @@ export const placeOrderCOD = async (req,res)=>{
             return res.json({success: false, message: "Invalid data"})
         }
 
+        // Validate and normalize quantities (1-10 per product)
+        const MAX_QTY = 10;
+        const normalizedItems = [];
+        for (let i = 0; i < items.length; i++) {
+            const it = items[i] || {};
+            const q = Number(it.quantity);
+            if (!Number.isFinite(q)) {
+                return res.status(400).json({ success: false, message: `Invalid quantity for item ${i + 1}` });
+            }
+            const qi = Math.floor(q);
+            if (qi < 1) {
+                return res.status(400).json({ success: false, message: `Quantity must be at least 1 (item ${i + 1})` });
+            }
+            if (qi > MAX_QTY) {
+                return res.status(400).json({ success: false, message: `Maximum ${MAX_QTY} units per product allowed (item ${i + 1})` });
+            }
+            normalizedItems.push({ ...it, quantity: qi });
+        }
+
         // Calculate Amount Using Items
-        let amount = await items.reduce(async (acc, item) =>{
+        let amount = await normalizedItems.reduce(async (acc, item) =>{
             const product = await Product.findById(item.product);
             return (await acc) + product.offerPrice * item.quantity;
 
@@ -29,7 +48,7 @@ export const placeOrderCOD = async (req,res)=>{
 
     const newOrder = await Order.create({
             userId,
-            items,
+            items: normalizedItems,
             amount,
             address,
             paymentType: "COD"
@@ -46,7 +65,7 @@ export const placeOrderCOD = async (req,res)=>{
                 const orderData = { 
                     _id: newOrder._id.toString(), // Use the actual database order ID
                     orderId: newOrder._id.toString(), // Use the actual database order ID
-                    items: await Promise.all(items.map(async (item) => {
+                    items: await Promise.all(normalizedItems.map(async (item) => {
                         const product = await Product.findById(item.product);
                         return {
                             product: {
@@ -97,10 +116,29 @@ export const placeOrderStripe = async (req, res) => {
             return res.json({ success: false, message: "Not Authorized: userId missing" });
         }
 
+        // Validate and normalize quantities (1-10 per product)
+        const MAX_QTY = 10;
+        const normalizedItems = [];
+        for (let i = 0; i < items.length; i++) {
+            const it = items[i] || {};
+            const q = Number(it.quantity);
+            if (!Number.isFinite(q)) {
+                return res.status(400).json({ success: false, message: `Invalid quantity for item ${i + 1}` });
+            }
+            const qi = Math.floor(q);
+            if (qi < 1) {
+                return res.status(400).json({ success: false, message: `Quantity must be at least 1 (item ${i + 1})` });
+            }
+            if (qi > MAX_QTY) {
+                return res.status(400).json({ success: false, message: `Maximum ${MAX_QTY} units per product allowed (item ${i + 1})` });
+            }
+            normalizedItems.push({ ...it, quantity: qi });
+        }
+
         let productData = [];
 
         // Calculate Amount Using Items
-        let amount = await items.reduce(async (acc, item) =>{
+        let amount = await normalizedItems.reduce(async (acc, item) =>{
             const product = await Product.findById(item.product);
             productData.push({
                 name: product.name,
@@ -117,7 +155,7 @@ export const placeOrderStripe = async (req, res) => {
 
         const order = await Order.create({
             userId,
-            items,
+            items: normalizedItems,
             amount,
             address,
             paymentType: "Online"
@@ -131,7 +169,7 @@ export const placeOrderStripe = async (req, res) => {
         console.log('Stripe Currency:', STRIPE_CURRENCY); // Debug log
         
         //create line items for stripe
-        const line_items = productData.map(item => {
+    const line_items = productData.map(item => {
             const itemPrice = item.price; // No tax
             console.log(`Item: ${item.name}, Price: ${itemPrice}`); // Debug log
             
