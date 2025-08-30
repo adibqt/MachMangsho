@@ -23,7 +23,7 @@ const ProductDetails = () => {
     useEffect(() => {
         if (products.length > 0 && product) {
             let productsCopy = products.slice();
-            productsCopy = productsCopy.filter((item) => product.category === item.category);
+            productsCopy = productsCopy.filter((item) => product.category === item.category && item.inStock && item._id !== product._id);
             setRelatedProducts(productsCopy.slice(0, 5));
         }
     }, [products, product]);
@@ -37,37 +37,37 @@ const ProductDetails = () => {
     }
 
     return (
-        <div className="mt-12">
-            <p>
-                <Link to="/">Home</Link> /
-                <Link to="/products"> Products</Link> / {/* Fixed link */}
-                <Link to={`/products/${product.category.toLowerCase()}`}> {product.category}</Link> /
+        <div className="mt-6 sm:mt-8 md:mt-12">
+            <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
+                <Link to="/" className="hover:text-[#c9595a]">Home</Link> /
+                <Link to="/products" className="hover:text-[#c9595a]"> Products</Link> /
+                <Link to={`/products/${product.category.toLowerCase()}`} className="hover:text-[#c9595a]"> {product.category}</Link> /
                 <span className="text-[#c9595a]"> {product.name}</span>
             </p>
 
-            <div className="flex flex-col md:flex-row gap-16 mt-4">
-                <div className="flex gap-3">
-                    <div className="flex flex-col gap-3">
+            <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 md:gap-12 lg:gap-16 mt-4">
+                <div className="flex gap-2 sm:gap-3 flex-1">
+                    <div className="flex flex-col gap-2 sm:gap-3">
                         {(product.images || []).map((image, index) => (
-                            <div key={index} onClick={() => setThumbnail(image)} className="border max-w-24 border-gray-500/30 rounded overflow-hidden cursor-pointer" >
-                                <img src={image} alt={`Thumbnail ${index + 1}`} />
+                            <div key={index} onClick={() => setThumbnail(image)} className="border w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 border-gray-500/30 rounded overflow-hidden cursor-pointer" >
+                                <img src={image} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
                             </div>
                         ))}
                     </div>
 
-                    <div className="border border-gray-500/30 max-w-100 rounded overflow-hidden">
-                        <img src={thumbnail} alt="Selected product" className="w-full h-full object-cover" />
+                    <div className="border border-gray-500/30 flex-1 max-w-sm mx-auto lg:max-w-md rounded overflow-hidden">
+                        <img src={thumbnail} alt="Selected product" className="w-full h-full object-contain" />
                     </div>
                 </div>
 
-                <div className="text-sm w-full md:w-1/2">
-                    <h1 className="text-3xl font-medium">{product.name}</h1>
+                <div className="text-sm w-full lg:w-1/2">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-medium">{product.name}</h1>
 
-                    <div className="flex items-center gap-0.5 mt-1">
+                    <div className="flex items-center gap-0.5 mt-1 sm:mt-2">
                         {Array(5).fill('').map((_, i) => (
                             <svg 
                                 key={i} 
-                                className="w-4 h-4" 
+                                className="w-3 h-3 sm:w-4 sm:h-4" 
                                 viewBox="0 0 24 24" 
                                 fill={i < 4 ? '#c9595a' : 'none'} 
                                 stroke={i < 4 ? '#c9595a' : '#d1d5db'}
@@ -79,24 +79,24 @@ const ProductDetails = () => {
                         <p className="text-base ml-2">({4})</p>
                     </div>
 
-                    <div className="mt-6">
-                        <p className="text-gray-500/70 line-through">MRP:{currency} {product.price}</p>
-                        <p className="text-2xl font-medium">MRP:{currency} {product.offerPrice}</p>
-                        <span className="text-gray-500/70">(inclusive of all taxes)</span>
+                    <div className="mt-4 sm:mt-6">
+                        <p className="text-gray-500/70 line-through text-sm sm:text-base">MRP:{currency} {product.price}</p>
+                        <p className="text-lg sm:text-xl md:text-2xl font-medium">MRP:{currency} {product.offerPrice}</p>
+                        <span className="text-gray-500/70 text-xs sm:text-sm">(inclusive of all taxes)</span>
                     </div>
 
-                    <p className="text-base font-medium mt-6">About Product</p>
-                    <ul className="list-disc ml-4 text-gray-500/70">
+                    <p className="text-sm sm:text-base font-medium mt-4 sm:mt-6">About Product</p>
+                    <ul className="list-disc ml-4 text-gray-500/70 text-sm sm:text-base">
                         {product.description.map((desc, index) => (
                             <li key={index}>{desc}</li>
                         ))}
                     </ul>
 
-                    <div className="flex items-center mt-10 gap-4 text-base">
-                        <button onClick={() => addToCart(product._id)} className="w-full py-3.5 cursor-pointer font-medium bg-gray-100 text-gray-800/80 hover:bg-gray-200 transition" >
+                    <div className="flex flex-col sm:flex-row items-center mt-6 sm:mt-8 md:mt-10 gap-3 sm:gap-4 text-sm sm:text-base">
+                        <button onClick={() => addToCart(product._id)} className="w-full py-3 sm:py-3.5 cursor-pointer font-medium bg-gray-100 text-gray-800/80 hover:bg-gray-200 transition rounded" >
                             Add to Cart
                         </button>
-                        <button onClick={() => {addToCart(product._id); navigate("/cart");}} className="w-full py-3.5 cursor-pointer font-medium text-white hover:opacity-90 transition" style={{ backgroundColor: '#c9595a' }} >
+                        <button onClick={() => {addToCart(product._id); navigate("/cart");}} className="w-full py-3 sm:py-3.5 cursor-pointer font-medium text-white hover:opacity-90 transition rounded" style={{ backgroundColor: '#c9595a' }} >
                             Buy now
                         </button>
                     </div>
@@ -105,16 +105,16 @@ const ProductDetails = () => {
 
             {/* Related Products Section */}
             {relatedProducts.length > 0 && (
-                <div className="mt-20">
-                    <div className="flex flex-col items-center justify-center mb-8">
-    <h2 className="text-3xl font-medium text-center">
+                <div className="mt-12 sm:mt-16 md:mt-20">
+                    <div className="flex flex-col items-center justify-center mb-6 sm:mb-8">
+    <h2 className="text-xl sm:text-2xl md:text-3xl font-medium text-center">
         Related <span className="relative inline-block">Products
             <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#c9595a] rounded-full"></span>
         </span>
     </h2>
 </div>
 
-<div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6">
+<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-6">
     {relatedProducts.map((relatedProduct) => (
         <ProductCard key={relatedProduct._id} product={relatedProduct} />
     ))}

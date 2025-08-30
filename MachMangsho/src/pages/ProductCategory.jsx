@@ -22,9 +22,9 @@ const ProductCategory = () => {
         (item) => item.path.toLowerCase() === category?.toLowerCase()
     );
 
-    // Filter products by category, case-insensitive
+    // Filter products by category, case-insensitive, and only show in-stock products
     const filteredProducts = products.filter((product) =>
-        product.category && product.category.toLowerCase() === category?.toLowerCase()
+        product.category && product.category.toLowerCase() === category?.toLowerCase() && product.inStock
     );
 
     // If category not found, show error
@@ -37,13 +37,13 @@ const ProductCategory = () => {
     }
 
     return (
-        <div className='mt-16'>
+        <div className='mt-8 sm:mt-16'>
             <div className='flex flex-col items-end w-max'>
-                <p className='text-2xl font-medium'>{searchCategory.text.toUpperCase()}</p>
-                <div className="w-16 h-0.5 bg-primary rounded-full"></div>
+                <p className='text-lg sm:text-xl md:text-2xl font-medium'>{searchCategory.text.toUpperCase()}</p>
+                <div className="w-12 sm:w-16 h-0.5 bg-primary rounded-full"></div>
             </div>
             {filteredProducts.length > 0 ? (
-                <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6 mt-6'>
+                <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-6 mt-4 sm:mt-6'>
                     {filteredProducts.map((product) => (
                         <ProductCard key={product._id} product={product} />
                     ))}

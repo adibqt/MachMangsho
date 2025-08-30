@@ -8,6 +8,7 @@ import toast from 'react-hot-toast'
 
 const Navbar = () => {
     const [open, setOpen] = React.useState(false)
+    const [userMenuOpen, setUserMenuOpen] = React.useState(false)
     const {user, setUser, setShowUserLogin, navigate, setSearchQuery, searchQuery, getCartCount, axios} = useAppContext()
 
     const logout = async () => {
@@ -26,16 +27,30 @@ const Navbar = () => {
         setUser(null);
         navigate('/');
     }
-useEffect(() => {
-    if(searchQuery.length > 0) {
-        navigate('/products');
-    }
-        
 
-},[searchQuery])
+    useEffect(() => {
+        if(searchQuery.length > 0) {
+            navigate('/products');
+        }
+    }, [searchQuery])
+
+    // Close dropdowns when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (!event.target.closest('.user-menu') && !event.target.closest('.mobile-menu-container')) {
+                setUserMenuOpen(false);
+                setOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
   return (
-     <nav className="flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white relative transition-all">
+     <nav className="flex items-center justify-between px-3 sm:px-6 md:px-16 lg:px-24 xl:px-32 py-3 sm:py-4 border-b border-gray-300 bg-white relative transition-all">
 
             <NavLink to ='/' onClick={()=> setOpen(false)} className="flex items-center gap-2">
                 <img className="h-39" src={assets.Mach} alt="Mach" />
@@ -62,11 +77,16 @@ useEffect(() => {
                     Login
                 </button>) :
                 (
-                    <div className = 'relative group'>
-                    <img src = {assets.profile_icon} className = 'w-10' alt = "" />
-                    <ul className='hidden group-hover:block absolute top-10 right-0 bg-white shadow border-gray-200 py-2.5 w-30 rounded-md text-sm z-40'>
-                        <li onClick={()=> navigate("my-orders")} className='p-1.5 pl-3 hover: bg-primary/10 cursor-pointer'>My Orders</li>
-                        <li onClick={logout} className='p-1.5 pl-3 hover: bg-primary/10 cursor-pointer'>Logout</li>
+                    <div className='relative user-menu'>
+                    <img 
+                        src={assets.profile_icon} 
+                        className='w-10 cursor-pointer' 
+                        alt="profile" 
+                        onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    />
+                    <ul className={`${userMenuOpen ? 'block' : 'hidden'} absolute top-12 right-0 bg-white shadow-lg border border-gray-200 py-2.5 w-36 rounded-md text-sm z-50`}>
+                        <li onClick={()=> {navigate("my-orders"); setUserMenuOpen(false);}} className='p-2 pl-3 hover:bg-primary/10 cursor-pointer border-b border-gray-100'>My Orders</li>
+                        <li onClick={() => {logout(); setUserMenuOpen(false);}} className='p-2 pl-3 hover:bg-primary/10 cursor-pointer'>Logout</li>
                     </ul>
                     </div> 
                 )
@@ -79,7 +99,7 @@ useEffect(() => {
                     <button className="absolute -top-2 -right-3 text-xs text-white bg-[#c9595a] w-[18px] h-[18px] rounded-full">{getCartCount()}</button>
                 </div>
 
-            <button onClick={() => open ? setOpen(false) : setOpen(true)} aria-label="Menu" className="">
+            <button onClick={() => setOpen(!open)} aria-label="Menu" className="mobile-menu-container">
                 {/* Menu Icon SVG */}
                 <img src ={assets.menu_icon} alt = 'menu'/>
             </button>
@@ -87,13 +107,19 @@ useEffect(() => {
 
             {/* Mobile Menu */}
             { open && (
-            <div className={`${open ? 'flex' : 'hidden'} absolute top-[60px] left-0 w-full bg-white shadow-md py-4 flex-col items-start gap-2 px-5 text-sm md:hidden`}>
-              <NavLink to='/' onClick={() => setOpen(false)} className="block">Home</NavLink>
-               <NavLink to='/products' onClick={() => setOpen(false)} className="block">All Product</NavLink>
-               {user &&
-               <NavLink to='/products' onClick={() => setOpen(false)} className="block">My Orders</NavLink>
-               }
-               <NavLink to='/' onClick={() => setOpen(false)} className="block">Contact</NavLink>
+            <div className={`${open ? 'flex' : 'hidden'} mobile-menu-container absolute top-[60px] left-0 w-full bg-white shadow-lg border-t border-gray-200 py-4 flex-col items-start gap-3 px-5 text-sm md:hidden z-50`}>
+              <NavLink to='/' onClick={() => setOpen(false)} className="block py-2 w-full border-b border-gray-100 hover:text-[#c9595a] transition-colors">Home</NavLink>
+               <NavLink to='/products' onClick={() => setOpen(false)} className="block py-2 w-full border-b border-gray-100 hover:text-[#c9595a] transition-colors">All Products</NavLink>
+               {user && (
+               <NavLink to='/my-orders' onClick={() => setOpen(false)} className="block py-2 w-full border-b border-gray-100 hover:text-[#c9595a] transition-colors">My Orders</NavLink>
+               )}
+               <NavLink to='/contact' onClick={() => setOpen(false)} className="block py-2 w-full border-b border-gray-100 hover:text-[#c9595a] transition-colors">Contact</NavLink>
+               
+               {/* Search bar for mobile */}
+               <div className="flex items-center text-sm gap-2 border border-gray-300 px-3 py-2 rounded-full w-full mt-2">
+                    <input onChange={(e)=> setSearchQuery(e.target.value)} className="py-1 w-full bg-transparent outline-none placeholder-gray-500" type="text" placeholder="Search products" />
+                    <img src ={assets.search_icon} alt='search' className = 'w-4 h-4'/>
+                </div>
                 
                 {!user ? (
                     <button
@@ -101,17 +127,26 @@ useEffect(() => {
                             setOpen(false)
                             setShowUserLogin(true);
                         }}
-                        className="cursor-pointer px-6 py-2 mt-2 bg-[#c9595a] hover:bg-[#b14c4d] transition text-white rounded-full text-sm"
+                        className="cursor-pointer px-6 py-2 mt-3 bg-[#c9595a] hover:bg-[#b14c4d] transition text-white rounded-full text-sm w-full"
                     >
                         Login
                     </button>
                 ) : (
-                    <button
-                        onClick={logout}
-                        className="cursor-pointer px-6 py-2 mt-2 bg-[#c9595a] hover:bg-[#b14c4d] transition text-white rounded-full text-sm"
-                    >
-                        Logout
-                    </button>
+                    <div className="flex flex-col gap-2 w-full mt-2">
+                        <div className="flex items-center gap-3 py-2 border-b border-gray-100">
+                            <img src={assets.profile_icon} className="w-8 h-8" alt="profile" />
+                            <span className="text-gray-700 font-medium">{user?.name || 'User'}</span>
+                        </div>
+                        <button
+                            onClick={() => {
+                                logout();
+                                setOpen(false);
+                            }}
+                            className="cursor-pointer px-6 py-2 mt-2 bg-[#c9595a] hover:bg-[#b14c4d] transition text-white rounded-full text-sm w-full"
+                        >
+                            Logout
+                        </button>
+                    </div>
                 )}
                 
             </div>
