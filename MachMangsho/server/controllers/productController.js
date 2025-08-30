@@ -1,36 +1,68 @@
-import { v2 as cloudinary } from "cloudinary"
-import Product from "../models/product.js";
+import { v2 as cloudinary } from "cloudinary";
+import Product from "../models/Product.js";
 
 
 // Add Product: /api/product/add
 export const addProduct = async (req, res) => {
     try {
-        const productData = JSON.parse(req.body?.productData || '{}');
+        // Parse product payload (sent as multipart field "productData")
+        const productDataRaw = req.body?.productData;
+        let productData = {};
+        try {
+            productData = productDataRaw ? JSON.parse(productDataRaw) : {};
+        } catch (e) {
+            return res.status(400).json({ success: false, message: 'Invalid productData JSON' });
+        }
 
+        // Basic validation
+        const required = ['name', 'description', 'price', 'category'];
+        const missing = required.filter((k) => !productData?.[k] || (Array.isArray(productData[k]) && productData[k].length === 0));
+        if (missing.length) {
+            return res.status(400).json({ success: false, message: `Missing fields: ${missing.join(', ')}` });
+        }
+
+        // Multer memory storage provides files with buffer
         const images = req.files || [];
         if (!Array.isArray(images) || images.length === 0) {
             return res.status(400).json({ success: false, message: 'No images uploaded' });
         }
 
+        // Helper to upload a single buffer to Cloudinary using upload_stream
+        const uploadBuffer = (fileBuffer, filename) =>
+            new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { resource_type: 'image', folder: 'products', public_id: undefined },
+                    (err, result) => {
+                        if (err) return reject(err);
+                        return resolve(result);
+                    }
+                );
+                stream.end(fileBuffer);
+            });
+
         const imagesUrl = await Promise.all(
-            images.map(async (item) => {
-                const result = await cloudinary.uploader.upload(item.path, { resource_type: 'image' });
+            images.map(async (file) => {
+                if (!file?.buffer) throw new Error('Uploaded file missing buffer');
+                const result = await uploadBuffer(file.buffer, file.originalname);
                 return result.secure_url;
             })
         );
 
-        await Product.create({
+        const created = await Product.create({
             ...productData,
             images: imagesUrl,
         });
 
-        return res.json({ success: true, message: 'Product added successfully' });
-    
+        return res.json({ success: true, message: 'Product added successfully', product: created });
     } catch (error) {
-        console.log('addProduct error:', error?.message);
-        res.status(500).json({success: false, message: 'Server Error'})
+        console.error('addProduct error:', error);
+        // Surface helpful hints for common misconfigurations
+        if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+            return res.status(500).json({ success: false, message: 'Cloudinary env not configured on server' });
+        }
+        return res.status(500).json({ success: false, message: 'Server Error' });
     }
-}
+};
 
 
 // Get Product: /api/product/list
