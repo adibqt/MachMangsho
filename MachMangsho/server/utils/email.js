@@ -232,7 +232,7 @@ export async function sendOrderReceiptEmail({ to, order, user }) {
                       Have questions about your order? We're here to help!
                     </p>
                     <p style="margin: 0; color: #666; font-size: 14px;">
-                      📧 Email: <a href="mailto:support@machmangsho.com" style="color: #c9595a; text-decoration: none;">support@machmangsho.com</a><br>
+                      📧 Email: <a href="mailto:machmangsho2025@gmail.com" style="color: #c9595a; text-decoration: none;">support@machmangsho.com</a><br>
                       📞 Phone: +880-123-456-7890
                     </p>
                   </div>
@@ -365,5 +365,110 @@ export async function testEmailConnection() {
   } catch (error) {
     console.error("Email server connection failed:", error.message);
     return false;
+  }
+}
+
+// Send password reset email
+export async function sendPasswordResetEmail({ to, resetToken, userName }) {
+  console.log("=== EMAIL FUNCTION START ===");
+  console.log("Email to:", to);
+  console.log("Reset token:", resetToken ? "PROVIDED" : "MISSING");
+  console.log("User name:", userName);
+  
+  if (!to) {
+    console.log("No email address provided for password reset");
+    return;
+  }
+
+  try {
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`;
+    
+    console.log("Generated reset URL:", resetUrl);
+    console.log("Sending password reset email to:", to);
+
+    const mailOptions = {
+      from: {
+        name: 'MachMangsho',
+        address: process.env.EMAIL_FROM
+      },
+      to: to,
+      subject: 'Reset Your Password - MachMangsho',
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Reset Your Password</title>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
+            .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+            .header { text-align: center; border-bottom: 3px solid #c9595a; padding-bottom: 20px; margin-bottom: 30px; }
+            .logo { max-width: 150px; height: auto; }
+            .content { padding: 20px 0; }
+            .reset-button { display: inline-block; background-color: #c9595a; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }
+            .reset-button:hover { background-color: #b14c4d; }
+            .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #666; font-size: 12px; }
+            .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 15px 0; }
+            .warning-icon { color: #856404; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <img src="https://mach-mangsho.vercel.app/logo3.png" alt="MachMangsho" class="logo" onerror="this.style.display='none';">
+              <h1 style="color: #c9595a; margin: 10px 0;">Password Reset Request</h1>
+            </div>
+            
+            <div class="content">
+              <h2>Hello ${userName || 'Valued Customer'},</h2>
+              
+              <p>We received a request to reset your password for your MachMangsho account. If you didn't make this request, you can safely ignore this email.</p>
+              
+              <p>To reset your password, click the button below:</p>
+              
+              <div style="text-align: center;">
+                <a href="${resetUrl}" class="reset-button">Reset My Password</a>
+              </div>
+              
+              <p>Or copy and paste this link into your browser:</p>
+              <p style="word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace;">${resetUrl}</p>
+              
+              <div class="warning">
+                <p><span class="warning-icon">⚠️</span> <strong>Important:</strong></p>
+                <ul>
+                  <li>This reset link will expire in <strong>1 hour</strong> for security purposes</li>
+                  <li>If you didn't request this reset, please ignore this email</li>
+                  <li>Never share this link with anyone</li>
+                </ul>
+              </div>
+              
+              <p>If you're having trouble clicking the reset button, you can also visit our website and use the "Forgot Password" option again.</p>
+              
+              <p>Thank you for choosing MachMangsho!</p>
+            </div>
+            
+            <div class="footer">
+              <p>This email was sent by MachMangsho</p>
+              <p>If you have any questions, please contact our support team.</p>
+              <p>&copy; 2025 MachMangsho. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+    };
+
+    console.log("About to send email with transporter...");
+    console.log("Mail options:", JSON.stringify(mailOptions, null, 2));
+    
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Password reset email sent successfully to ${to}:`, info.messageId);
+    return true;
+    
+  } catch (error) {
+    console.error("Failed to send password reset email:", error.message);
+    console.error("Full error:", error);
+    throw error;
   }
 }
