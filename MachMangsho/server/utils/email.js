@@ -381,8 +381,24 @@ export async function sendPasswordResetEmail({ to, resetToken, userName }) {
   }
 
   try {
-    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`;
+    // Determine the frontend URL based on environment
+    let frontendUrl;
+    if (process.env.FRONTEND_URL) {
+      // Explicitly set frontend URL (production)
+      frontendUrl = process.env.FRONTEND_URL;
+    } else if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
+      // If in production/Vercel but no FRONTEND_URL set, throw an error
+      throw new Error('FRONTEND_URL environment variable must be set in production. Please set it to your Vercel frontend URL (e.g., https://your-app-name.vercel.app)');
+    } else {
+      // Development environment
+      frontendUrl = 'http://localhost:5173'; // Updated to match current dev server
+    }
     
+    const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
+    
+    console.log("Environment:", process.env.NODE_ENV);
+    console.log("VERCEL environment:", process.env.VERCEL);
+    console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
     console.log("Generated reset URL:", resetUrl);
     console.log("Sending password reset email to:", to);
 

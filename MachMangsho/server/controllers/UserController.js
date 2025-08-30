@@ -218,13 +218,25 @@ export const forgotPassword = async (req, res) => {
 
 // Reset Password: /api/user/reset-password
 export const resetPassword = async (req, res) => {
+    console.log("🚀 RESET PASSWORD FUNCTION CALLED!");
+    console.log("Request method:", req.method);
+    console.log("Request URL:", req.url);
+    console.log("Request headers:", req.headers);
     try {
+        console.log("=== RESET PASSWORD REQUEST START ===");
+        console.log("Request body:", req.body);
+        
         const { token, newPassword } = req.body;
 
+        console.log("Extracted token:", token ? "PROVIDED" : "MISSING");
+        console.log("Extracted newPassword:", newPassword ? "PROVIDED" : "MISSING");
+
         if (!token || !newPassword) {
+            console.log("Missing token or password");
             return res.status(400).json({ success: false, message: "Token and new password are required" });
         }
 
+        console.log("Starting password validation...");
         // Password validation (same as registration)
         const minLength = 8;
         const hasUpperCase = /[A-Z]/.test(newPassword);
@@ -233,53 +245,84 @@ export const resetPassword = async (req, res) => {
         const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword);
 
         if (newPassword.length < minLength) {
+            console.log("Password too short");
             return res.status(400).json({ message: `Password must be at least ${minLength} characters long` });
         }
         if (!hasUpperCase) {
+            console.log("Password missing uppercase");
             return res.status(400).json({ message: "Password must contain at least one uppercase letter" });
         }
         if (!hasLowerCase) {
+            console.log("Password missing lowercase");
             return res.status(400).json({ message: "Password must contain at least one lowercase letter" });
         }
         if (!hasNumbers) {
+            console.log("Password missing numbers");
             return res.status(400).json({ message: "Password must contain at least one number" });
         }
         if (!hasSpecialChar) {
+            console.log("Password missing special character");
             return res.status(400).json({ message: "Password must contain at least one special character" });
         }
 
+        console.log("Password validation passed");
+        console.log("Hashing token for database lookup...");
+        
         // Hash the token to compare with database
         const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+        console.log("Hashed token created");
 
+        console.log("Searching for user with reset token...");
         // Find user with matching token and non-expired token
         const user = await User.findOne({
             resetPasswordToken: hashedToken,
             resetPasswordExpires: { $gt: Date.now() }
         });
 
+        console.log("User found:", user ? "YES" : "NO");
+        if (user) {
+            console.log("User email:", user.email);
+            console.log("Token expires:", user.resetPasswordExpires);
+            console.log("Current time:", new Date());
+        }
+
         if (!user) {
+            console.log("Invalid or expired token");
             return res.status(400).json({ 
                 success: false, 
                 message: "Invalid or expired reset token" 
             });
         }
 
+        console.log("Hashing new password...");
         // Hash new password
         const hashedPassword = await bcrypt.hash(newPassword, 10);
+        console.log("Password hashed successfully");
 
+        console.log("Updating user in database...");
         // Update password and clear reset token
         user.password = hashedPassword;
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
-        await user.save();
+        
+        // Save without running validation on unchanged fields
+        await user.save({ validateBeforeSave: false });
+        console.log("User saved successfully");
 
+        console.log("=== RESET PASSWORD SUCCESS ===");
         return res.json({ 
             success: true, 
             message: "Password has been reset successfully. You can now login with your new password." 
         });
 
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false, message: "Internal server error" });
+        console.error("=== RESET PASSWORD ERROR ===");
+        console.error("Error details:", error);
+        console.error("Error message:", error.message);
+        console.error("Error stack:", error.stack);
+        return res.status(500).json({ 
+            success: false, 
+            message: "Internal server error" 
+        });
     }
 };
