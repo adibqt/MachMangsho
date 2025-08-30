@@ -13,19 +13,18 @@ const Navbar = () => {
 
     const logout = async () => {
         try {
-            const { data } = await axios.get('/api/user/logout');
-            if (data.success) {
+            const { data } = await axios.post('/api/user/logout');
+            if (data?.success) {
                 toast.success('Logged out successfully');
-                setUser(null);
-                navigate('/');
             } else {
-                toast.error('Logout failed');
+                toast.error(data?.message || 'Logout failed');
             }
         } catch (error) {
-            
+            toast.error(error?.response?.data?.message || 'Logout failed');
+        } finally {
+            setUser(null);
+            navigate('/');
         }
-        setUser(null);
-        navigate('/');
     }
 
     useEffect(() => {

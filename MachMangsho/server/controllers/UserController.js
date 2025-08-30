@@ -64,6 +64,7 @@ export const register = async (req, res) => {
 
         
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        // Set legacy cookie for compatibility during migration
         res.cookie('token', token, {
             httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
             secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
@@ -72,6 +73,16 @@ export const register = async (req, res) => {
             path: '/',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
+        // Also set a hardened __Host- cookie in production to avoid path/domain ambiguity
+        if (process.env.NODE_ENV === 'production') {
+            res.cookie('__Host-token', token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'None',
+                path: '/',
+                maxAge: 7 * 24 * 60 * 60 * 1000
+            });
+        }
     // Proactively clear any legacy path-scoped cookies that may linger from older deployments
     res.clearCookie('token', { path: '/api/user', secure: process.env.NODE_ENV === 'production' });
     res.clearCookie('token', { path: '/api', secure: process.env.NODE_ENV === 'production' });
@@ -105,6 +116,7 @@ export const login = async (req, res) => {
         }
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        // Set legacy cookie for compatibility during migration
         res.cookie('token', token, {
             httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
             secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
@@ -113,6 +125,16 @@ export const login = async (req, res) => {
             path: '/',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
+        // Also set a hardened __Host- cookie in production to avoid path/domain ambiguity
+        if (process.env.NODE_ENV === 'production') {
+            res.cookie('__Host-token', token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'None',
+                path: '/',
+                maxAge: 7 * 24 * 60 * 60 * 1000
+            });
+        }
     // Proactively clear any legacy path-scoped cookies that may linger from older deployments
     res.clearCookie('token', { path: '/api/user', secure: process.env.NODE_ENV === 'production' });
     res.clearCookie('token', { path: '/api', secure: process.env.NODE_ENV === 'production' });
@@ -156,9 +178,24 @@ export  const logout = async(req, res) => {
             maxAge: 0,
             expires: new Date(0)
         });
+        // Overwrite hardened cookie as well
+        res.cookie('__Host-token', '', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+            path: '/',
+            maxAge: 0,
+            expires: new Date(0)
+        });
 
     // Clear cookie with matching attributes
         res.clearCookie('token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+            path: '/'
+        });
+        res.clearCookie('__Host-token', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
