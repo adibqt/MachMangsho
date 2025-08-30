@@ -15,14 +15,29 @@ const MainBanner = () => {
         </h1>
         
         <div className='flex flex-col md:flex-row gap-4'>
-          <Link to="/products" className='group flex items-center gap-2 px-7 md:px-9 py-3 transition rounded text-white cursor-pointer' style={{ backgroundColor: '#c9595a' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#b14a4b'} onMouseLeave={(e) => e.target.style.backgroundColor = '#c9595a'}>
+          {/* Primary CTA: go to all products */}
+          <Link
+            to="/products"
+            aria-label="Browse all products"
+            className='group flex items-center gap-2 px-7 md:px-9 py-3 transition rounded text-white cursor-pointer'
+            style={{ backgroundColor: '#c9595a' }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#b14a4b')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#c9595a')}
+          >
             Shop Now
-            <img className='md:hidden transition group-focus:translate-x-1' src={assets.white_arrow_icon} alt="Arrow" />
+            <img className='md:hidden transition group-focus:translate-x-1' src={assets.white_arrow_icon} alt="" />
           </Link>
-          
-          <Link to="/products" className='group hidden md:flex items-center gap-2 px-9 py-3 cursor-pointer text-black transition' style={{ ':hover': { color: '#c9595a' } }} onMouseEnter={(e) => e.target.style.color = '#c9595a'} onMouseLeave={(e) => e.target.style.color = 'black'}>
+
+          {/* Secondary CTA: deep-link to deals (e.g., offerPrice < price) */}
+          <Link
+            to={{ pathname: '/products', search: '?filter=deals' }}
+            aria-label="View current deals"
+            className='group hidden md:flex items-center gap-2 px-9 py-3 cursor-pointer text-black transition'
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#c9595a')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'black')}
+          >
             Explore Deals
-            <img className='transition group-hover:translate-x-1' src={assets.black_arrow_icon} alt="Arrow" />
+            <img className='transition group-hover:translate-x-1' src={assets.black_arrow_icon} alt="" />
           </Link>
         </div>
       </div>
