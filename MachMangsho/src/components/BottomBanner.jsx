@@ -31,7 +31,7 @@ const BottomBanner = () => {
     return (
         <div
             ref={rootRef}
-            className='mt-24 rounded-xl ring-1 ring-emerald-100 bg-gradient-to-r from-slate-50 via-emerald-50 to-teal-50 px-4 sm:px-6 md:px-12 py-10 md:py-16'
+            className='mt-28 md:mt-32 rounded-xl ring-1 ring-emerald-100 bg-gradient-to-r from-slate-50 via-emerald-50 to-teal-50 px-4 sm:px-6 md:px-12 py-12 md:py-20'
         >
             <div className='grid grid-cols-1 md:grid-cols-2 items-center gap-6 md:gap-8'>
                 {/* Left: heading */}
