@@ -158,7 +158,7 @@ export const footerLinks = [
       { text: "Home", url: "#" },
       { text: "Best Sellers", url: "#" },
   { text: "Offers & Deals", url: "/products?filter=deals" },
-      { text: "Contact Us", url: "#" },
+  { text: "Contact Us", url: "/contact" },
   { text: "FAQs", url: "/faqs" },
     ],
   },

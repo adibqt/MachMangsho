@@ -10,7 +10,7 @@ const faqsData = [
       },
       {
         q: 'Can I schedule a delivery?',
-        a: 'Yes. Choose a suitable time slot at checkout where available. We’ll notify you before dispatch.'
+        a: 'No , We are currently unable to offer scheduled deliveries.'
       },
       {
         q: 'What are the delivery charges?',
@@ -57,7 +57,7 @@ const faqsData = [
     items: [
       {
         q: 'How do I track my order?',
-        a: 'Go to My Orders to view status in real time. You’ll receive updates via email as well.'
+        a: 'Go to My Orders to view your orders. You’ll receive updates via email as well.'
       },
       {
         q: 'I forgot my password. What should I do?',
