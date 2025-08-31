@@ -157,9 +157,9 @@ export const footerLinks = [
     links: [
       { text: "Home", url: "#" },
       { text: "Best Sellers", url: "#" },
-      { text: "Offers & Deals", url: "#" },
+  { text: "Offers & Deals", url: "/products?filter=deals" },
       { text: "Contact Us", url: "#" },
-      { text: "FAQs", url: "#" },
+  { text: "FAQs", url: "/faqs" },
     ],
   },
   {
