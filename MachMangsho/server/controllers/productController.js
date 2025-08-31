@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import Product from "../models/Product.js";
+import Order from "../models/Order.js";
 
 
 // Add Product: /api/product/add
@@ -146,3 +147,43 @@ try {
     
 }
     }
+
+// Get Top Products by quantity sold (public): /api/product/top
+export const topProducts = async (req, res) => {
+    try {
+        const limit = Math.min(parseInt(req.query.limit || '10', 10), 50);
+        const data = await Order.aggregate([
+            // Only consider paid online or any COD orders (same as getAllOrders filter)
+            { $match: { $or: [{ paymentType: 'COD' }, { isPaid: true }] } },
+            { $unwind: '$items' },
+            { $group: { _id: '$items.product', quantity: { $sum: '$items.quantity' } } },
+            { $addFields: { productIdObj: { $convert: { input: '$_id', to: 'objectId', onError: null, onNull: null } } } },
+            { $sort: { quantity: -1 } },
+            { $limit: limit },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'productIdObj',
+                    foreignField: '_id',
+                    as: 'product'
+                }
+            },
+            { $unwind: { path: '$product', preserveNullAndEmptyArrays: true } },
+            // Exclude deleted/missing and placeholder-name products
+            { $match: { 'product.name': { $ne: null, $ne: 'Product' } } },
+            {
+                $project: {
+                    _id: 0,
+                    quantity: 1,
+                    product: 1
+                }
+            }
+        ]);
+
+        const products = data.map(d => d.product).filter(Boolean);
+        return res.json({ success: true, products });
+    } catch (error) {
+        console.error('topProducts error:', error);
+        return res.status(500).json({ success: false, message: 'Server Error' });
+    }
+}

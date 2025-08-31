@@ -2,13 +2,14 @@
 import express from 'express';
 import { upload } from '../configs/multer.js';
 import { authSeller } from '../middlewares/authSeller.js';
-import { addProduct, productList, productById, changeStock} from '../controllers/productController.js';
+import { addProduct, productList, productById, changeStock, topProducts } from '../controllers/productController.js';
 
 const productRouter = express.Router();
 
 // Authenticate before parsing and saving files
 productRouter.post('/add', authSeller, upload.array("images"), addProduct);
 productRouter.get('/list', productList);
+productRouter.get('/top', topProducts);
 productRouter.get('/:id', productById);
 productRouter.put('/stock', authSeller, changeStock);
 
