@@ -19,6 +19,9 @@ const Analytics = () => {
   const [trend, setTrend] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
   const [locations, setLocations] = useState([]);
+  const filteredLocations = (locations || []).filter(
+    (l) => l && typeof l.city === 'string' && l.city.trim() && l.city.trim().toLowerCase() !== 'unknown'
+  );
 
   const fetchAll = async () => {
     setLoading(true);
@@ -38,6 +41,8 @@ const Analytics = () => {
     }
   };
 
+  // Intentionally run once on mount; fetchAll is stable for this usage
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchAll(); }, []);
 
   return (
@@ -47,7 +52,18 @@ const Analytics = () => {
         <button onClick={fetchAll} className="text-sm px-3 py-1.5 bg-[#c9595a] text-white rounded">Refresh</button>
       </div>
 
-      {overview && (
+      {loading && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 opacity-60">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex-1 min-w-[160px] bg-white border border-gray-200 rounded-lg p-4 shadow-sm animate-pulse">
+              <div className="h-3 w-24 bg-gray-200 rounded" />
+              <div className="h-7 w-20 bg-gray-200 rounded mt-3" />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {overview && !loading && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard label="Total Orders (30d)" value={overview.totalOrders} />
           <StatCard label="Items Sold (30d)" value={overview.totalItemsSold} />
@@ -78,20 +94,26 @@ const Analytics = () => {
         <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
           <p className="text-sm text-gray-500 mb-2">Top locations</p>
           <div className="w-full h-64">
-            <ResponsiveContainer>
-              <BarChart data={locations} margin={{ top: 10, right: 10, bottom: 0, left: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey={(d) => `${d.city}`}
-                       interval={0}
-                       tick={{ fontSize: 11 }}
-                />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="itemsSold" name="Items" fill="#c9595a" />
-                <Bar dataKey="orders" name="Orders" fill="#60a5fa" />
-              </BarChart>
-            </ResponsiveContainer>
+            {filteredLocations.length === 0 ? (
+              <div className="w-full h-full flex items-center justify-center text-sm text-gray-500">
+                No location data
+              </div>
+            ) : (
+              <ResponsiveContainer>
+                <BarChart data={filteredLocations} margin={{ top: 10, right: 10, bottom: 0, left: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey={(d) => `${d.city}`}
+                         interval={0}
+                         tick={{ fontSize: 11 }}
+                  />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="itemsSold" name="Items" fill="#c9595a" />
+                  <Bar dataKey="orders" name="Orders" fill="#60a5fa" />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
       </div>
