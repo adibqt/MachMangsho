@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { dummyAddress, assets } from '../assets/assets';
 import toast from 'react-hot-toast';
@@ -13,6 +13,8 @@ const Cart = () => {
     const [showAddress, setShowAddress] = useState(false);
     const [selectedAddress, setSelectedAddress] = useState(null);
     const [paymentOption, setPaymentOption] = useState("COD");
+    const [isPlacing, setIsPlacing] = useState(false);
+    const inFlightRef = useRef(false);
 
     const getCart = ()=> {
         let tempArray =[];
@@ -43,17 +45,24 @@ const Cart = () => {
     }
 
     const placeOrder = async () => {
+        if (isPlacing || inFlightRef.current) return; // guard double submit
+        setIsPlacing(true);
+        inFlightRef.current = true;
         try {
             // Check if user is logged in first
             if (!user) {
                 toast.error("Please login first to place an order");
                 setShowUserLogin(true); // Show login popup
+                setIsPlacing(false);
+                inFlightRef.current = false;
                 return;
             }
 
             if (!selectedAddress) {
-                return toast.error("Please select a delivery address.");
-                
+                toast.error("Please select a delivery address.");
+                setIsPlacing(false);
+                inFlightRef.current = false;
+                return;
             }
             // Place order with COD
 
@@ -89,6 +98,9 @@ const Cart = () => {
             }
     } catch (error) {
         toast.error(error.message);
+    } finally {
+        setIsPlacing(false);
+        inFlightRef.current = false;
     }
 
     }
@@ -248,18 +260,22 @@ const Cart = () => {
                 )}
 
                 <button 
-                    onClick={placeOrder} 
-                    className={`w-full py-3 mt-6 cursor-pointer font-medium transition ${
+                    onClick={placeOrder}
+                    disabled={!user || isPlacing}
+                    aria-busy={isPlacing}
+                    className={`w-full py-3 mt-6 font-medium transition ${
                         !user 
                             ? 'bg-gray-400 hover:bg-gray-500 text-white' 
                             : 'bg-[#c9595a] hover:bg-[#b14c4d] text-white'
-                    }`}
+                    } ${(!user || isPlacing) ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
                     {!user 
-                        ? "Login to Place Order" 
-                        : paymentOption === "COD" 
-                            ? "Place Order (COD)" 
-                            : "Proceed to Payment"
+                        ? 'Login to Place Order' 
+                        : isPlacing 
+                            ? 'Processing...'
+                            : (paymentOption === 'COD' 
+                                ? 'Place Order (COD)'
+                                : 'Proceed to Payment')
                     }
                 </button>
             </div>
