@@ -19,6 +19,7 @@ import leaf_icon from "./leaf_icon.svg";
 import coin_icon from "./coin_icon.svg";
 import box_icon from "./box_icon.svg";
 import trust_icon from "./trust_icon.svg";
+import analytics_icon from "./analytics.png";
 import black_arrow_icon from "./black_arrow_icon.svg";
 import white_arrow_icon from "./white_arrow_icon.svg";
 import main_banner_bg from "./main_banner_bg.png";
@@ -92,6 +93,7 @@ export const assets = {
   leaf_icon,
   coin_icon,
   trust_icon,
+  analytics_icon,
   black_arrow_icon,
   white_arrow_icon,
   main_banner_bg,
@@ -155,28 +157,9 @@ export const footerLinks = [
     links: [
       { text: "Home", url: "#" },
       { text: "Best Sellers", url: "#" },
-      { text: "Offers & Deals", url: "#" },
-      { text: "Contact Us", url: "#" },
-      { text: "FAQs", url: "#" },
-    ],
-  },
-  {
-    title: "Need help?",
-    links: [
-      { text: "Delivery Information", url: "#" },
-      { text: "Return & Refund Policy", url: "#" },
-      { text: "Payment Methods", url: "#" },
-      { text: "Track your Order", url: "#" },
-      { text: "Contact Us", url: "#" },
-    ],
-  },
-  {
-    title: "Follow Us",
-    links: [
-      { text: "Instagram", url: "#" },
-      { text: "Twitter", url: "#" },
-      { text: "Facebook", url: "#" },
-      { text: "YouTube", url: "#" },
+  { text: "Offers & Deals", url: "/products?filter=deals" },
+  { text: "Contact Us", url: "/contact" },
+  { text: "FAQs", url: "/faqs" },
     ],
   },
 ];
