@@ -306,3 +306,55 @@ export const topProducts = async (req, res) => {
         return res.status(500).json({ success: false, message: 'Server Error' });
     }
 }
+
+// Delete Product: /api/product/:id (DELETE)
+export const deleteProduct = async (req, res) => {
+    try {
+        const id = req.params?.id;
+        if (!id) {
+            return res.status(400).json({ success: false, message: 'Missing product id' });
+        }
+
+        const existing = await Product.findById(id);
+        if (!existing) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        // Best-effort delete images from Cloudinary using URLs
+        const urls = Array.isArray(existing.images) ? existing.images : [];
+        const toPublicId = (url) => {
+            try {
+                const u = new URL(url);
+                const parts = u.pathname.split('/').filter(Boolean); // e.g., ['image','upload','v123','products','abc.jpg']
+                const uploadIdx = parts.findIndex((p) => p === 'upload');
+                if (uploadIdx === -1) return null;
+                let startIdx = uploadIdx + 1;
+                if (parts[startIdx] && /^v\d+$/.test(parts[startIdx])) startIdx += 1;
+                const joined = parts.slice(startIdx).join('/'); // products/abc.jpg
+                const lastDot = joined.lastIndexOf('.');
+                return lastDot > 0 ? joined.slice(0, lastDot) : joined;
+            } catch {
+                return null;
+            }
+        };
+
+        await Promise.all(
+            urls.map(async (url) => {
+                const pid = toPublicId(url);
+                if (pid) {
+                    try {
+                        await cloudinary.uploader.destroy(pid);
+                    } catch (e) {
+                        console.warn('Cloudinary destroy failed for', pid, e?.message || e);
+                    }
+                }
+            })
+        );
+
+        await Product.findByIdAndDelete(id);
+        return res.json({ success: true, message: 'Product deleted successfully' });
+    } catch (error) {
+        console.error('deleteProduct error:', error);
+        return res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
