@@ -124,7 +124,8 @@ export const productList = async (req, res) => {
     export const productById = async (req, res) => {
 
         try {
-            const{ id } = req.body
+            // Support both URL param and body for backward compatibility
+            const id = req.params?.id || req.body?.id;
             const product = await Product.findById(id)
             res.json({success: true, product})
         } catch (error) {
@@ -147,6 +148,124 @@ try {
     
 }
     }
+
+// Update Product: /api/product/update/:id
+export const updateProduct = async (req, res) => {
+    try {
+        const id = req.params?.id;
+        if (!id) {
+            return res.status(400).json({ success: false, message: 'Missing product id' });
+        }
+
+        const existing = await Product.findById(id);
+        if (!existing) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        // Accept either JSON body or multipart with optional files
+        let payload = {};
+        if (req.is('multipart/form-data')) {
+            const raw = req.body?.productData;
+            try {
+                payload = raw ? JSON.parse(raw) : {};
+            } catch (e) {
+                return res.status(400).json({ success: false, message: 'Invalid productData JSON' });
+            }
+        } else {
+            payload = req.body || {};
+        }
+
+        const updates = {};
+
+        // Name, category, inStock are straightforward
+        if (typeof payload.name === 'string' && payload.name.trim()) updates.name = payload.name.trim();
+        if (typeof payload.category === 'string' && payload.category.trim()) updates.category = payload.category.trim();
+        if (typeof payload.inStock === 'boolean') updates.inStock = payload.inStock;
+
+        // Description can be a string (newline separated) or array of strings
+        if (payload.description !== undefined) {
+            if (Array.isArray(payload.description)) {
+                updates.description = payload.description.filter((d) => typeof d === 'string' && d.trim());
+            } else if (typeof payload.description === 'string') {
+                updates.description = payload.description
+                    .split('\n')
+                    .map((s) => s.trim())
+                    .filter(Boolean);
+            }
+        }
+
+        // Price / discount / offerPrice logic mirrored from addProduct
+        const hasPrice = payload.price !== undefined && payload.price !== null && payload.price !== '';
+        const priceNum = hasPrice ? Number(payload.price) : existing.price;
+        if (hasPrice) {
+            if (!Number.isFinite(priceNum) || priceNum < 0) {
+                return res.status(400).json({ success: false, message: 'Invalid price' });
+            }
+            updates.price = +priceNum.toFixed(2);
+        }
+
+        const hasDiscount = payload.discountPercent !== undefined && payload.discountPercent !== null && payload.discountPercent !== '';
+        let discountNum = hasDiscount ? Number(payload.discountPercent) : existing.discountPercent;
+        if (hasDiscount) {
+            if (!Number.isFinite(discountNum)) {
+                return res.status(400).json({ success: false, message: 'Invalid discount percent' });
+            }
+            discountNum = Math.max(0, Math.min(100, discountNum));
+            updates.discountPercent = +discountNum.toFixed(2);
+        }
+
+        const hasOffer = payload.offerPrice !== undefined && payload.offerPrice !== null && payload.offerPrice !== '';
+        let offerNum = hasOffer ? Number(payload.offerPrice) : existing.offerPrice ?? existing.price;
+        const finalPrice = hasPrice ? priceNum : existing.price;
+
+        if (hasDiscount) {
+            offerNum = +(finalPrice * (1 - discountNum / 100)).toFixed(2);
+        } else if (hasOffer) {
+            if (!Number.isFinite(offerNum) || offerNum < 0) {
+                return res.status(400).json({ success: false, message: 'Invalid offer price' });
+            }
+        } else if (hasPrice) {
+            // keep existing offer if valid; clamp to new price if it exceeds
+            if (offerNum > finalPrice) offerNum = finalPrice;
+        }
+
+        if (offerNum > finalPrice) {
+            return res.status(400).json({ success: false, message: 'Offer price cannot be greater than product price' });
+        }
+        updates.offerPrice = +offerNum.toFixed(2);
+
+        // If files are uploaded, replace images entirely
+        const images = req.files || [];
+        if (Array.isArray(images) && images.length > 0) {
+            const uploadBuffer = (fileBuffer) =>
+                new Promise((resolve, reject) => {
+                    const stream = cloudinary.uploader.upload_stream(
+                        { resource_type: 'image', folder: 'products', public_id: undefined },
+                        (err, result) => {
+                            if (err) return reject(err);
+                            return resolve(result);
+                        }
+                    );
+                    stream.end(fileBuffer);
+                });
+
+            const imagesUrl = await Promise.all(
+                images.map(async (file) => {
+                    if (!file?.buffer) throw new Error('Uploaded file missing buffer');
+                    const result = await uploadBuffer(file.buffer);
+                    return result.secure_url;
+                })
+            );
+            updates.images = imagesUrl;
+        }
+
+        const updated = await Product.findByIdAndUpdate(id, updates, { new: true });
+        return res.json({ success: true, message: 'Product updated successfully', product: updated });
+    } catch (error) {
+        console.error('updateProduct error:', error);
+        return res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
 
 // Get Top Products by quantity sold (public): /api/product/top
 export const topProducts = async (req, res) => {

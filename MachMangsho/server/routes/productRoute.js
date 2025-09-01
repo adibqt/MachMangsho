@@ -2,7 +2,7 @@
 import express from 'express';
 import { upload } from '../configs/multer.js';
 import { authSeller } from '../middlewares/authSeller.js';
-import { addProduct, productList, productById, changeStock, topProducts } from '../controllers/productController.js';
+import { addProduct, productList, productById, changeStock, topProducts, updateProduct } from '../controllers/productController.js';
 
 const productRouter = express.Router();
 
@@ -12,6 +12,7 @@ productRouter.get('/list', productList);
 productRouter.get('/top', topProducts);
 productRouter.get('/:id', productById);
 productRouter.put('/stock', authSeller, changeStock);
+productRouter.put('/update/:id', authSeller, upload.array("images"), updateProduct);
 
 // Export both named and default to avoid ESM import issues
 export { productRouter };
