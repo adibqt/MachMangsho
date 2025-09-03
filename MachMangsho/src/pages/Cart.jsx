@@ -121,7 +121,8 @@ const Cart = () => {
     },[user])
     const subtotal = getCartAmount();
     const hasItems = getCartCount() > 0;
-    const deliveryCharge = hasItems ? 40 : 0;
+    const chargeApplicable = hasItems && !!selectedAddress;
+    const deliveryCharge = chargeApplicable ? 40 : 0;
     const total = subtotal + deliveryCharge;
 
     return products.length > 0 && cartItems  ? (
@@ -234,7 +235,7 @@ const Cart = () => {
                     <p className="flex justify-between">
                         <span>Price</span><span>{currency}{subtotal}</span>
                     </p>
-                    {hasItems && (
+                    {chargeApplicable && (
                         <p className="flex justify-between">
                             <span style={{ color: '#c9595a' }}>Delivery Charge</span>
                             <span style={{ color: '#c9595a' }}>{currency}{deliveryCharge}</span>
