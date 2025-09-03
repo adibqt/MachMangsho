@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, forgotPassword, resetPassword, isAuth, logout } from '../controllers/userController.js';
+import { register, login, forgotPassword, resetPassword, isAuth, logout, updateProfile, changePassword } from '../controllers/userController.js';
 import authUser from '../middlewares/authUser.js';
 const userRouter = express.Router();
 
@@ -12,6 +12,8 @@ userRouter.get('/logout', logout);
 userRouter.post('/logout', logout);
 userRouter.post('/forgot-password', forgotPassword);
 userRouter.post('/reset-password', resetPassword);
+userRouter.put('/profile', authUser, updateProfile);
+userRouter.post('/change-password', authUser, changePassword);
 
 // Export both named and default to avoid ESM import issues
 export { userRouter };

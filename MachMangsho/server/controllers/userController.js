@@ -167,6 +167,78 @@ export const isAuth = async (req, res) => {
     }
 }
 
+// Update profile name: /api/user/profile (PUT)
+export const updateProfile = async (req, res) => {
+    try {
+        const userId = req.userId;
+        if (!userId) return res.status(401).json({ success: false, message: 'Not Authorized' });
+        const { name } = req.body || {};
+        const trimmed = (name || '').trim();
+        const nameRegex = /^[a-zA-Z\s]+$/;
+        if (!trimmed) return res.status(400).json({ success: false, message: 'Name is required' });
+        if (trimmed.length < 2) return res.status(400).json({ success: false, message: 'Name must be at least 2 characters long' });
+        if (!nameRegex.test(trimmed)) return res.status(400).json({ success: false, message: 'Name can only contain letters and spaces' });
+
+        const updated = await User.findByIdAndUpdate(userId, { name: trimmed }, { new: true }).select('-password');
+        return res.json({ success: true, user: updated, message: 'Profile updated successfully' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
+// Change password (authenticated): /api/user/change-password (POST)
+export const changePassword = async (req, res) => {
+    try {
+        const userId = req.userId;
+        if (!userId) return res.status(401).json({ success: false, message: 'Not Authorized' });
+
+        const { currentPassword, newPassword } = req.body || {};
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ success: false, message: 'Current and new password are required' });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+        if (!isPasswordValid) {
+            return res.status(400).json({ success: false, message: 'Current password is incorrect' });
+        }
+
+        // Validate new password (same rules as register)
+        const minLength = 8;
+        const hasUpperCase = /[A-Z]/.test(newPassword);
+        const hasLowerCase = /[a-z]/.test(newPassword);
+        const hasNumbers = /\d/.test(newPassword);
+        const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword);
+
+        if (newPassword.length < minLength) {
+            return res.status(400).json({ success: false, message: `Password must be at least ${minLength} characters long` });
+        }
+        if (!hasUpperCase) {
+            return res.status(400).json({ success: false, message: 'Password must contain at least one uppercase letter' });
+        }
+        if (!hasLowerCase) {
+            return res.status(400).json({ success: false, message: 'Password must contain at least one lowercase letter' });
+        }
+        if (!hasNumbers) {
+            return res.status(400).json({ success: false, message: 'Password must contain at least one number' });
+        }
+        if (!hasSpecialChar) {
+            return res.status(400).json({ success: false, message: 'Password must contain at least one special character' });
+        }
+
+        user.password = await bcrypt.hash(newPassword, 10);
+        await user.save({ validateBeforeSave: false });
+
+        return res.json({ success: true, message: 'Password updated successfully' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
 export  const logout = async(req, res) => {
     try {
         // Overwrite cookie to expire immediately

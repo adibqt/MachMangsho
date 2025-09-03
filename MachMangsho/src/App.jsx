@@ -23,6 +23,7 @@ import Loading from './components/Loading'
 import ResetPassword from './pages/ResetPassword'
 import Faqs from './pages/Faqs'
 import Contact from './pages/Contact'
+import Profile from './pages/Profile'
 const App = () => {
 
 
@@ -50,6 +51,7 @@ const App = () => {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/faqs" element={<Faqs />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/loader" element={<Loading />} />
           <Route path='/seller' element={isSeller ? <SellerLayout/> : <SellerLogin/>}>
             <Route index element={isSeller ? <AddProduct/> : null} />

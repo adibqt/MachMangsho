@@ -88,6 +88,7 @@ const Navbar = () => {
                         <li className='px-3 pb-2 text-gray-700 font-medium border-b border-gray-100 truncate'>
                             {user?.name || 'User'}
                         </li>
+                        <li onClick={()=> {navigate('/profile'); setUserMenuOpen(false);}} className='p-2 pl-3 hover:bg-primary/10 cursor-pointer border-b border-gray-100'>Profile</li>
                         <li onClick={()=> {navigate("my-orders"); setUserMenuOpen(false);}} className='p-2 pl-3 hover:bg-primary/10 cursor-pointer border-b border-gray-100'>My Orders</li>
                         <li onClick={() => {logout(); setUserMenuOpen(false);}} className='p-2 pl-3 hover:bg-primary/10 cursor-pointer'>Logout</li>
                     </ul>
@@ -113,6 +114,9 @@ const Navbar = () => {
             <div className={`${open ? 'flex' : 'hidden'} mobile-menu-container absolute top-[60px] left-0 w-full bg-white shadow-lg border-t border-gray-200 py-4 flex-col items-start gap-3 px-5 text-sm md:hidden z-50`}>
               <NavLink to='/' onClick={() => setOpen(false)} className="block py-2 w-full border-b border-gray-100 hover:text-[#c9595a] transition-colors">Home</NavLink>
                <NavLink to='/products' onClick={() => setOpen(false)} className="block py-2 w-full border-b border-gray-100 hover:text-[#c9595a] transition-colors">All Products</NavLink>
+               {user && (
+               <NavLink to='/profile' onClick={() => setOpen(false)} className="block py-2 w-full border-b border-gray-100 hover:text-[#c9595a] transition-colors">Profile</NavLink>
+               )}
                {user && (
                <NavLink to='/my-orders' onClick={() => setOpen(false)} className="block py-2 w-full border-b border-gray-100 hover:text-[#c9595a] transition-colors">My Orders</NavLink>
                )}
