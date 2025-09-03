@@ -63,21 +63,7 @@ const ProductDetails = () => {
                 <div className="text-sm w-full lg:w-1/2">
                     <h1 className="text-xl sm:text-2xl md:text-3xl font-medium">{product.name}</h1>
 
-                    <div className="flex items-center gap-0.5 mt-1 sm:mt-2">
-                        {Array(5).fill('').map((_, i) => (
-                            <svg 
-                                key={i} 
-                                className="w-3 h-3 sm:w-4 sm:h-4" 
-                                viewBox="0 0 24 24" 
-                                fill={i < 4 ? '#c9595a' : 'none'} 
-                                stroke={i < 4 ? '#c9595a' : '#d1d5db'}
-                                strokeWidth="1"
-                            >
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                            </svg>
-                        ))}
-                        <p className="text-base ml-2">({4})</p>
-                    </div>
+                    {/* Removed placeholder star rating */}
 
                                         <div className="mt-4 sm:mt-6">
                                                 {(() => {

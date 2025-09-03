@@ -20,22 +20,7 @@ const ProductCard = ({product}) => {
                 <p className="text-xs">{product.category}</p>
                 <p className="text-gray-700 font-medium text-sm sm:text-base md:text-lg truncate w-full">{product.name}</p>
                 
-                {/* Star Rating */}
-                <div className="flex items-center gap-0.5 my-1">
-                    {Array(5).fill('').map((_, i) => (
-                        <svg 
-                            key={i} 
-                            className="w-2.5 sm:w-3 md:w-3.5" 
-                            viewBox="0 0 24 24" 
-                            fill={i < 4 ? '#c9595a' : 'none'} 
-                            stroke="#c9595a"
-                            strokeWidth="2"
-                        >
-                            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
-                        </svg>
-                    ))} 
-                    <p style={{color: '#c9595a'}} className="text-xs">(4)</p>
-                </div>
+                {/* Removed placeholder star rating */}
                 {/* Price and Cart */}
                 <div className="flex items-end justify-between mt-2 sm:mt-3">
                     <p className="text-sm sm:text-base md:text-xl font-medium" style={{color: '#c9595a'}}>
